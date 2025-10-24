@@ -1,0 +1,13 @@
+@base = {{host}}/test
+
+### ✅ 성공 응답 테스트
+GET {{base}}/success
+Accept: application/json
+
+### ❌ 커스텀 비즈니스 예외 (GlobalException)
+GET {{base}}/biz-error
+Accept: application/json
+
+### 💥 런타임 예외 (500 InternalServerError)
+GET {{base}}/runtime-error
+Accept: application/json

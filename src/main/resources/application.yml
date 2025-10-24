@@ -1,0 +1,27 @@
+#spring:
+#  datasource:
+#    driver-class-name: org.postgresql.Driver
+#    url: ${JDBC_URL}
+#    username: ${DB_USERNAME}
+#    password: ${DB_PASSWORD}
+#  jpa:
+#    open-in-view: false    # ??? ??????? ??? ???? ??, ?? ??
+#    hibernate:
+#      ddl-auto: ${DDL_AUTO}          # ?? ???? validate
+#    properties:
+#      hibernate:
+#        format_sql: true     # ?? ?? ? SQL ?? ???
+#        highlight_sql: true  # ?? ?? ? SQL ?? ??
+#
+#jwt:
+##  secret: ${JWT_SECRET}
+#  expiration: ${JWT_EXPIRATION}
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+
+springdoc:
+  swagger-ui:
+    doc-expansion: none          # ??? ?? ??
+    persist-authorization: true  # ???? ??? ?? ??
