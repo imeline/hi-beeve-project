@@ -1,26 +1,27 @@
-package beeve
+package beeve.demo
 
-import beeve.global.exception.GlobalException
-import beeve.global.exception.ErrorStatus
-import beeve.global.response.ApiResponse
+import beeve.common.exception.ErrorStatus
+import beeve.common.exception.GlobalException
+import beeve.common.response.ApiResponse
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/v1/test")
-class TestController {
+class DemoController {
 
     // ✅ 정상 응답
     @GetMapping("/success")
     fun success(): ApiResponse<String> {
-        return ApiResponse.onSuccess("정상 응답입니다!")
+        return ApiResponse.onSuccess("내보낼 데이터(DTO)가 들어가면 됨")
     }
 
     // ❌ 커스텀 비즈니스 예외 (GlobalException)
     @GetMapping("/biz-error")
     fun bizError(): ApiResponse<Unit> {
-        throw GlobalException(ErrorStatus.DUPLICATE_LOGIN_EMAIL, "이미 사용중인 이메일입니다.")
+        /** 아래 코드를 서비스 로직에서 **/
+        throw GlobalException(ErrorStatus.DUPLICATE_LOGIN_EMAIL)
     }
 
     // 💥 일반 런타임 예외 (핸들러에서 500 처리)

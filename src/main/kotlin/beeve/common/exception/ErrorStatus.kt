@@ -1,4 +1,4 @@
-package beeve.global.exception
+package beeve.common.exception
 
 import org.springframework.http.HttpStatus
 
@@ -19,20 +19,20 @@ enum class ErrorStatus {
     NOT_FOUND_ERP_ACCOUNT("AUTH105", "계정을 찾을 수 없습니다.");
 
     val httpStatus: HttpStatus
-    val status: String
+    val code: String
     val message: String
 
     // status, message 만 쓸 경우, 기본 HttpStatus.BAD_REQUEST 사용
-    constructor(status: String, message: String) {
+    constructor(code: String, message: String) {
         this.httpStatus = HttpStatus.BAD_REQUEST // 커스텀 에러의 상태 코드 기본값
-        this.status = status
+        this.code = code
         this.message = message
     }
 
     // httpStatus, status, message 모두 쓸 경우
-    constructor(httpStatus: HttpStatus, status: String, message: String) {
+    constructor(httpStatus: HttpStatus, code: String, message: String) {
         this.httpStatus = httpStatus
-        this.status = status
+        this.code = code
         this.message = message
     }
 }

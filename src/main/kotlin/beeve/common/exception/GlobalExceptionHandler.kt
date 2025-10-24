@@ -1,8 +1,9 @@
-package beeve.global.exception
+package beeve.common.exception
 
-import beeve.global.response.ApiResponse
+import beeve.common.response.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -19,6 +20,11 @@ class GlobalExceptionHandler {
     @Value("\${spring.profiles.active:dev}")
     private lateinit var activeProfile: String
 
+    // 코틀린 Lombok 불안정 문제로 인해 @Slf4j 대신 LoggerFactory 사용
+    companion object {
+        private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+    }
+
     /**
      * 비즈니스 예외 처리 (커스텀 4xx 등)
      */
@@ -29,8 +35,10 @@ class GlobalExceptionHandler {
         response: HttpServletResponse
     ): ApiResponse<Unit> {
         val es = ex.status
-
         response.status = es.httpStatus.value()
+
+        log.warn("code: {}, uri: {}, msg: {}",
+            es.name, request.requestURI, ex.message ?: es.message)
         return ApiResponse.onFailure(es, ex.message ?: es.message)
     }
 
@@ -47,6 +55,7 @@ class GlobalExceptionHandler {
             .joinToString(", ") { e -> "${e.field}: ${e.defaultMessage}" }
 
         response.status = HttpStatus.BAD_REQUEST.value()
+        log.warn("uri: {}, fields: {}", request.requestURI, message)
         return ApiResponse.onFailure(ErrorStatus.BAD_REQUEST, message)
     }
 
@@ -63,6 +72,7 @@ class GlobalExceptionHandler {
             .joinToString(", ") { e -> "${e.field}: ${e.defaultMessage}" }
 
         response.status = HttpStatus.BAD_REQUEST.value()
+        log.warn("uri: {}, fields: {}", request.requestURI, message)
         return ApiResponse.onFailure(ErrorStatus.BAD_REQUEST, message)
     }
 
@@ -76,6 +86,7 @@ class GlobalExceptionHandler {
         response: HttpServletResponse
     ): ApiResponse<Unit> {
         response.status = HttpStatus.BAD_REQUEST.value()
+        log.warn("uri: {}, fields: {}", request.requestURI, ex.message)
         return ApiResponse.onFailure(ErrorStatus.NOT_READABLE)
     }
 
@@ -95,6 +106,7 @@ class GlobalExceptionHandler {
         val isProd = "prod".equals(activeProfile, ignoreCase = true)
         response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
         // 배포 환경에서는 내부 오류 메시지를 숨김
+        log.warn("uri: {}, fields: {}", request.requestURI, ex.message, ex)
         return if (isProd) {
             ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR)
         } else {

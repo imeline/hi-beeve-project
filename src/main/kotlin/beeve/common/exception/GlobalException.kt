@@ -1,4 +1,4 @@
-package beeve.global.exception
+package beeve.common.exception
 
 class GlobalException : RuntimeException {
     val status: ErrorStatus
