@@ -1,5 +1,6 @@
 package beeve.common.config
 
+import beeve.biz.auth.security.ApiAuthenticationEntryPoint
 import beeve.biz.auth.security.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,7 +19,9 @@ class SecurityConfig(
 ) {
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    fun securityFilterChain(http: HttpSecurity,
+                            apiAuthenticationEntryPoint: ApiAuthenticationEntryPoint
+    ): SecurityFilterChain {
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
@@ -31,6 +34,9 @@ class SecurityConfig(
                     .anyRequest().authenticated()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .exceptionHandling { eh ->
+                eh.authenticationEntryPoint(apiAuthenticationEntryPoint)
+            }
             // addFilterBefore는 Class<? extends Filter> 타입 파라미터를 요구
             // 따라서 코틀린 타입에서 자바 Class 객체를 꺼내는 ::class.java 사용
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

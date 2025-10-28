@@ -14,6 +14,9 @@ spring:
         format_sql: true
         highlight_sql: true
 
+cors:
+  allowed-origin: ${CORS_ALLOWED_ORIGIN}
+
 jwt:
   secret-key: ${JWT_SECRET_KEY}
   access-expiration: ${JWT_ACCESS_EXP}

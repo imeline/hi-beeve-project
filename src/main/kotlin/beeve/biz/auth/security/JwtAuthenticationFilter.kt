@@ -1,5 +1,6 @@
 package beeve.biz.auth.security
 
+import io.jsonwebtoken.ExpiredJwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -38,10 +39,15 @@ class JwtAuthenticationFilter(
             return
         }
 
-        // 2) 토큰 유효성 검사
+        // 토큰 유효성 검사
         if (!jwtTokenProvider.validateToken(header)) {
-            // 유효하지 않으면 여기서 401을 내지 않고 soft-pass
-            // 보호된 경로는 SecurityConfig 인가 규칙에 의해 최종 401/403 처리됨
+            try {
+                // 만료 여부 확인
+                jwtTokenProvider.extractMemberId(header)
+            } catch (_: ExpiredJwtException) { // 만료된 토큰인 경우 별도 속성 추가
+                request.setAttribute("AUTH_ERROR", "EXPIRED_ACCESS_TOKEN")
+            } catch (_: Exception) { // 기타 오류는 일반 UNAUTHORIZED로 처리
+            }
             filterChain.doFilter(request, response)
             return
         }
