@@ -12,11 +12,14 @@ enum class ErrorStatus {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다."),
 
     // AUTH
-    DUPLICATE_LOGIN_EMAIL("AUTH101", "기존 사용중인 이메일입니다."),
-    INVALID_LOGIN_CREDENTIALS("AUTH102", "아이디 또는 비밀번호가 일치하지 않습니다."),
-    NOT_FOUND_TENANT_ID("AUTH103", "테넌트 ID가 설정되지 않았습니다."),
-    SIGNUP_FAIL("AUTH104", "회원가입에 실패했습니다."),
-    NOT_FOUND_ERP_ACCOUNT("AUTH105", "계정을 찾을 수 없습니다.");
+    SOCIAL_AUTH_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH101", "소셜 인증 가입 이력이 존재하지 않습니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH103", "리프레시 토큰이 존재하지 않습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH104", "리프레시 토큰이 일치하지 않습니다."),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH105", "리프레시 토큰이 만료되었습니다."),
+    DUPLICATE_LOGIN_EMAIL("AUTH106", "기존 사용중인 이메일입니다."),
+    INVALID_LOGIN_CREDENTIALS("AUTH107", "아이디 또는 비밀번호가 일치하지 않습니다."),
+    SIGNUP_FAIL("AUTH108", "회원가입에 실패했습니다."),
+    ;
 
     val httpStatus: HttpStatus
     val code: String
