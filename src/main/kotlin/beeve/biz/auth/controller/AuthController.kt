@@ -8,6 +8,7 @@ import beeve.biz.auth.security.JwtTokenProvider
 import beeve.common.response.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
 
 @Tag(name = "Auth", description = "인증 API")
@@ -24,17 +25,17 @@ class AuthController(
                 "성공 시 accessToken/refreshToken을 바디로 반환합니다.", security = []
     )
     @PostMapping("/login")
-    fun login(@RequestBody req: SocialLoginRequest): ApiResponse<TokenResponse> {
+    fun login(@Valid @RequestBody req: SocialLoginRequest): ApiResponse<TokenResponse> {
         val res = authService.socialLogin(req)
         return ApiResponse.onSuccess(res)
     }
 
     @Operation(
         summary = "accessToken 재발급",
-        description = "바디의 refreshToken을 검증하여 새 accessToken을 발급합니다."
+        description = "바디의 refreshToken을 검증하여 새 accessToken을 발급합니다.", security = []
     )
     @PostMapping("/refresh")
-    fun refresh(@RequestBody req: RefreshTokenRequest): ApiResponse<TokenResponse> {
+    fun refresh(@Valid @RequestBody req: RefreshTokenRequest): ApiResponse<TokenResponse> {
         val res = authService.refresh(req)
         return ApiResponse.onSuccess(res)
     }
@@ -47,7 +48,7 @@ class AuthController(
     @PostMapping("/logout")
     fun logout(
         @RequestHeader("Authorization") accessHeader: String,
-        @RequestBody req: RefreshTokenRequest
+        @Valid @RequestBody req: RefreshTokenRequest
     ): ApiResponse<Void?> {
         val memberId = jwtTokenProvider.extractMemberId(accessHeader)
         authService.logout(memberId, req)

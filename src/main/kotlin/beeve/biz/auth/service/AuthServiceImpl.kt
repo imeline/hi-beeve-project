@@ -22,6 +22,7 @@ class AuthServiceImpl(
 
     @Transactional
     override fun socialLogin(request: SocialLoginRequest): TokenResponse {
+        // todo: 탈퇴 회원 검증 필요
         // 소셜 인증 정보 조회
         val social = socialAuthRepository
             .findByProviderAndProviderUserId(request.provider, request.providerUserId)
