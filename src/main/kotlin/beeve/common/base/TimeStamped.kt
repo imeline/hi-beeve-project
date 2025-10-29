@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)
-abstract class GlobalTime {
+abstract class TimeStamped {
 
     @CreatedDate
     @Column(updatable = false)
