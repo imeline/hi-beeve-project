@@ -12,7 +12,6 @@ class Member(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
     val memberId: Long? = null,
 
     @Column(length = 255)
@@ -21,11 +20,10 @@ class Member(
     @Column(length = 50)
     var name: String? = null,
 
-    @Column(name = "birth_date")
     var birthDate: LocalDate? = null,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", length = 1)
+    @Column(length = 1)
     var gender: Gender? = null,
 
     @Column(precision = 5, scale = 2)
@@ -34,13 +32,13 @@ class Member(
     @Column(precision = 5, scale = 2)
     var weight: BigDecimal? = null,
 
-    @Column(name = "profile_url", length = 255)
+    @Column(length = 255)
     var profileUrl: String? = null,
 
-    @Column(name = "withdraw_reason", length = 255)
+    @Column(length = 255)
     var withdrawReason: String? = null,
 
-    @Column(name = "deleted_yn", length = 1, nullable = false)
+    @Column(length = 1, nullable = false)
     var deletedYn: String = "N"
 
 ) : TimeStamped()

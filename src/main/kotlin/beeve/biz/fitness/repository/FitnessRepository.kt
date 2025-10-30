@@ -1,0 +1,14 @@
+package beeve.biz.fitness.repository
+
+import beeve.biz.fitness.entity.Fitness
+import org.bson.types.ObjectId
+import org.springframework.data.mongodb.repository.MongoRepository
+import java.time.LocalDate
+
+interface FitnessRepository : MongoRepository<Fitness, ObjectId> {
+
+    fun existsByMemberIdAndMeasureDay(
+        memberId: Long,
+        measureDay: LocalDate
+    ): Boolean
+}

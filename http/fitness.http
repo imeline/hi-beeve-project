@@ -1,0 +1,68 @@
+@base = {{host}}/fitness
+
+### ─────────────────────────────────
+### 1) 체력 측정 - 첫 요청 (profile 포함)
+### ─────────────────────────────────
+POST {{base}}
+Authorization: {{accessToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "profile": {
+    "birthDate": "2002-01-01",
+    "gender": "M",
+    "height": 163.77,
+    "weight": 58.66
+  },
+  "measure": {
+    "measurePlace": "GYM",
+    "strengthLevel": 2,
+    "pushUpReps": 20,
+    "curlUpReps": 25,
+    "stepTestRecoveryBpm": 96,
+    "sitAndReach": 20,
+    "standingLongJump": 105,
+    "sideStepReps": 30
+  }
+}
+
+### ─────────────────────────────────
+### 2) 체력 측정 - 이후 요청 (profile 생략)
+### ─────────────────────────────────
+POST {{base}}
+Authorization: {{accessToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "profile": null,
+  "measure": {
+    "measurePlace": null,
+    "strengthLevel": 1,
+    "pushUpReps": 15,
+    "curlUpReps": 18,
+    "stepTestRecoveryBpm": 90,
+    "sitAndReach": 18,
+    "standingLongJump": 98,
+    "sideStepReps": 25
+  }
+}
+
+### ─────────────────────────────────
+### 3) 잘못된 요청 테스트 - measure 누락
+###   기대: 400 (measure 는 필수)
+### ─────────────────────────────────
+POST {{base}}
+Authorization: {{accessToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "profile": {
+    "birthDate": "2000-01-01",
+    "gender": "M",
+    "height": "175.12",
+    "weight": "70.30"
+  }
+}
