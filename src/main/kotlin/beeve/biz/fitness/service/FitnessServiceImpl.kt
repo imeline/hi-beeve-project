@@ -1,7 +1,11 @@
 package beeve.biz.fitness.service
 
+import beeve.biz.fitness.dto.internal.TypePerRankResult
 import beeve.biz.fitness.dto.request.FitnessCreateRequest
+import beeve.biz.fitness.dto.response.FitnessGetResponse
+import beeve.biz.fitness.dto.response.FitnessItemResponse
 import beeve.biz.fitness.entity.Fitness
+import beeve.biz.fitness.enum.FitnessType
 import beeve.biz.fitness.repository.FitnessRepository
 import beeve.biz.member.enum.Gender
 import beeve.biz.member.service.MemberService
@@ -15,6 +19,7 @@ import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
+import kotlin.math.roundToInt
 
 @Service
 class FitnessServiceImpl(
@@ -83,6 +88,74 @@ class FitnessServiceImpl(
         fitnessRepository.save(newFitness)
     }
 
+    @Transactional(readOnly = true)
+    override fun getFitnessByDate(memberId: Long, measureDay: LocalDate): FitnessGetResponse {
+        // 1) 내가 그 날짜에 측정한 데이터
+        val myFitness = fitnessRepository.findByMemberIdAndMeasureDay(memberId, measureDay)
+            ?: throw GlobalException(ErrorStatus.FITNESS_NOT_FOUND)
+
+        val myAge = myFitness.age
+            ?: throw GlobalException(ErrorStatus.MEMBER_PROFILE_NOT_FOUND)
+
+        // 2) 같은 나이대 데이터 전체 조회
+        val sameAgeRangeFitnessList = fitnessRepository.findAllByAgeRangeAndDeletedYn(
+            ageRange = myFitness.ageRange,
+        )
+        if (sameAgeRangeFitnessList.isEmpty()) {
+            throw GlobalException(ErrorStatus.FITNESS_NOT_FOUND)
+        }
+
+        // 3) 회원별 최신 1개만 남기기, 국민체력100 데이터는 전부 반영
+        // (나 자신은 이번 measureDay 걸로 강제)
+        val latestPerMember = latestPerMember(
+            sameAgeRangeFitnessList = sameAgeRangeFitnessList,
+            myFitness = myFitness,
+        )
+        // 총 순위 인원 수
+        val total = latestPerMember.size
+
+        // 4) enum 한 번만 돌면서 타입별 순위 계산
+        val typePerResults = FitnessType.entries
+            .mapNotNull { type -> // null이 아니면 리스트에 넣어라
+                calcTypeRank(
+                    me = myFitness,
+                    all = latestPerMember,
+                    type = type,
+                )
+            }
+
+        if (typePerResults.isEmpty()) {
+            throw GlobalException(ErrorStatus.FITNESS_NOT_FOUND)
+        }
+
+        // 5) 종합 순위 = 타입별 rank 평균
+        val finalRank = typePerResults
+            .map { it.rank }
+            .average()
+            .toInt()
+
+        val grade = rankToGrade(finalRank, total)
+
+        // 6) DTO 변환
+        return FitnessGetResponse(
+            grade = grade,
+            rank = finalRank,
+            total = total,
+            measurePlace = myFitness.measurePlace,
+            height = myFitness.height.bigDecimalValue(),
+            weight = myFitness.weight.bigDecimalValue(),
+            age = myAge,
+            fitness = typePerResults.map { r ->
+                FitnessItemResponse(
+                    fitnessType = r.fitnessType,
+                    strengthLevel = r.strengthLevel,
+                    value = r.value,
+                    graphPosition = r.graphPosition,
+                )
+            },
+        )
+    }
+
     private fun toAgeRange(ageYears: Int): Int =
         (ageYears / 10) * 10
 
@@ -144,5 +217,86 @@ class FitnessServiceImpl(
         }
 
         return BigDecimal.valueOf(vo2).setScale(2, RoundingMode.HALF_UP)
+    }
+
+    /**
+     * 한 회원이 여러 번 측정했을 때 가장 최신 1개만 남김.
+     * 나 자신은 measureDay 기준으로 강제 고정.
+     * 국민체력100에서 수집한 정제데이터는 memberId 가 없으므로 전부 포함.
+     */
+    private fun latestPerMember(
+        sameAgeRangeFitnessList: List<Fitness>,
+        myFitness: Fitness,
+    ): List<Fitness> {
+        // 국민체력100에서 수집한 정제데이터 (memberId 없음) → 전부 순위에 포함
+        val fitness100Data = sameAgeRangeFitnessList.filter { it.memberId == null }
+
+        // 실제 회원 데이터만 모아서 "회원당 최신 1개"로 압축
+        val latestPerMember = sameAgeRangeFitnessList
+            .filter { it.memberId != null }
+            .groupBy { it.memberId!! } // 회원 별로 리스트 묶기
+            .map { (memberIdKey, memberFitnessList) ->
+                if (memberIdKey == myFitness.memberId) {
+                    // 조회 요청한 회원은 그날 측정한 값으로 고정
+                    myFitness
+                } else {
+                    // 그 회원이 가진 측정 중 가장 최근 것
+                    memberFitnessList.maxBy { it.measureDay }
+                }
+            }
+
+        // 국민체력100 데이터 + 실제 회원 최신 데이터
+        return fitness100Data + latestPerMember
+    }
+
+    /**
+     * 체력 타입 1개(STRENGTH 등)에 대해
+     * - 내 값 뽑고
+     * - 같은 나이대 리스트에서 그 타입 값 있는 사람만 모아서
+     * - 내 순위, 그래프 계산
+     * 값이 없으면 null
+     */
+    private fun calcTypeRank(
+        me: Fitness,
+        all: List<Fitness>,
+        type: FitnessType,
+    ): TypePerRankResult? {
+        // fitness type 별 나의 측정 값 (횟수, cm, VO2max 등)
+        val myValue = type.toValue(me) ?: return null
+        // 같은 나이대에서 그 타입 값 있는 사람만 모음
+        val compValues = all.mapNotNull { type.toValue(it) }
+
+        val sorted = compValues.sortedByDescending { it }
+        // indexOfFirst: 첫 번째로 조건에 맞는 요소의 인덱스 반환, 없으면 -1 반환
+        val myRank = sorted.indexOfFirst { it.compareTo(myValue) == 0 } + 1
+        val total = sorted.size
+
+        val graphPosition = if (total <= 1) {
+            1.0
+        } else {
+            val raw = 1.0 - (myRank - 1).toDouble() / (total - 1).toDouble()
+            (raw * 10_000).roundToInt() / 10_000.0
+        }
+
+        return TypePerRankResult(
+            fitnessType = type,
+            strengthLevel = if (type == FitnessType.STRENGTH) me.strengthLevel else null,
+            value = myValue,
+            rank = myRank,
+            total = total,
+            graphPosition = graphPosition,
+        )
+    }
+
+
+    private fun rankToGrade(rank: Int, total: Int): Int {
+        if (total <= 0) return 4
+        val ratio = rank.toDouble() / total.toDouble()
+        return when {
+            ratio <= 0.30 -> 1
+            ratio <= 0.50 -> 2
+            ratio <= 0.70 -> 3
+            else -> 4
+        }
     }
 }

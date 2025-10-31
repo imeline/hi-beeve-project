@@ -2,12 +2,14 @@ package beeve.biz.fitness.controller
 
 import beeve.biz.auth.security.JwtTokenProvider
 import beeve.biz.fitness.dto.request.FitnessCreateRequest
+import beeve.biz.fitness.dto.response.FitnessGetResponse
 import beeve.biz.fitness.service.FitnessService
 import beeve.common.response.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 @Tag(name = "Fitness", description = "체력 측정 API")
 @RestController
@@ -34,4 +36,22 @@ class FitnessController(
         fitnessService.createFitness(memberId, req)
         return ApiResponse.onSuccess(null)
     }
+
+    @Operation(
+        summary = "체력 측정값 조회(날짜별)",
+        description = """
+        특정 날짜에 사용자가 측정한 체력 데이터를 조회합니다.
+        이때 순위/등급은 같은 나이대의 최신 측정 데이터(국민체력100 포함)를 기준으로 계산합니다.
+        """,
+    )
+    @GetMapping
+    fun getFitnessByDate(
+        @RequestHeader("Authorization") accessHeader: String,
+        @RequestParam measureDay: LocalDate,
+    ): ApiResponse<FitnessGetResponse> {
+        val memberId = jwtTokenProvider.extractMemberId(accessHeader)
+        val res = fitnessService.getFitnessByDate(memberId, measureDay)
+        return ApiResponse.onSuccess(res)
+    }
+
 }

@@ -66,3 +66,10 @@ Accept: application/json
     "weight": "70.30"
   }
 }
+
+### ─────────────────────────────────
+### 4) 체력 측정 조회 - 날짜별
+### ─────────────────────────────────
+GET {{base}}?measureDay=2025-10-31
+Authorization: {{accessToken}}
+Accept: application/json

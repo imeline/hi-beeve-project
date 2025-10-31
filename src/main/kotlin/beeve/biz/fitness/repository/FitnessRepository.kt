@@ -11,4 +11,14 @@ interface FitnessRepository : MongoRepository<Fitness, ObjectId> {
         memberId: Long,
         measureDay: LocalDate
     ): Boolean
+
+    fun findByMemberIdAndMeasureDay(
+        memberId: Long,
+        measureDay: LocalDate,
+    ): Fitness?
+
+    fun findAllByAgeRangeAndDeletedYn(
+        ageRange: Int,
+        deletedYn: String = "N",
+    ): List<Fitness>
 }
