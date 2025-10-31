@@ -4,6 +4,7 @@ import beeve.biz.fitness.dto.internal.TypePerRankResult
 import beeve.biz.fitness.dto.request.FitnessCreateRequest
 import beeve.biz.fitness.dto.response.FitnessGetResponse
 import beeve.biz.fitness.dto.response.FitnessItemResponse
+import beeve.biz.fitness.dto.response.FitnessMeasureDatesResponse
 import beeve.biz.fitness.entity.Fitness
 import beeve.biz.fitness.enum.FitnessType
 import beeve.biz.fitness.repository.FitnessRepository
@@ -86,6 +87,18 @@ class FitnessServiceImpl(
         )
 
         fitnessRepository.save(newFitness)
+    }
+
+    @Transactional(readOnly = true)
+    override fun getMeasureDates(memberId: Long): FitnessMeasureDatesResponse {
+        val measureDays = fitnessRepository
+            .findAllByMemberIdAndDeletedYnOrderByMeasureDayDesc(memberId)
+            .map { it.measureDay }
+
+        return FitnessMeasureDatesResponse(
+            totalCount = measureDays.size,
+            measureDates = measureDays,
+        )
     }
 
     @Transactional(readOnly = true)

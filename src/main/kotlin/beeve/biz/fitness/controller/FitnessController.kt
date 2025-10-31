@@ -3,6 +3,7 @@ package beeve.biz.fitness.controller
 import beeve.biz.auth.security.JwtTokenProvider
 import beeve.biz.fitness.dto.request.FitnessCreateRequest
 import beeve.biz.fitness.dto.response.FitnessGetResponse
+import beeve.biz.fitness.dto.response.FitnessMeasureDatesResponse
 import beeve.biz.fitness.service.FitnessService
 import beeve.common.response.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -35,6 +36,22 @@ class FitnessController(
         val memberId = jwtTokenProvider.extractMemberId(accessHeader)
         fitnessService.createFitness(memberId, req)
         return ApiResponse.onSuccess(null)
+    }
+
+    @Operation(
+        summary = "체력 측정 가능 날짜 목록 조회",
+        description = """
+        사용자가 지금까지 체력을 측정한 날짜를 최신순으로 내려줍니다.
+        화면 캘린더에 뿌릴 때 사용합니다.
+        """,
+    )
+    @GetMapping("/measure-days")
+    fun getMeasureDates(
+        @RequestHeader("Authorization") accessHeader: String,
+    ): ApiResponse<FitnessMeasureDatesResponse> {
+        val memberId = jwtTokenProvider.extractMemberId(accessHeader)
+        val res = fitnessService.getMeasureDates(memberId)
+        return ApiResponse.onSuccess(res)
     }
 
     @Operation(

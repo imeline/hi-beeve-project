@@ -68,7 +68,14 @@ Accept: application/json
 }
 
 ### ─────────────────────────────────
-### 4) 체력 측정 조회 - 날짜별
+### 4) 체력 측정 가능 날짜 목록 조회
+### ─────────────────────────────────
+GET {{base}}/measure-days
+Authorization: {{accessToken}}
+Accept: application/json
+
+### ─────────────────────────────────
+### 5) 체력 측정 조회 - 날짜별
 ### ─────────────────────────────────
 GET {{base}}?measureDay=2025-10-31
 Authorization: {{accessToken}}
