@@ -13,26 +13,28 @@ import java.time.Instant
 import java.time.LocalDate
 
 @Document(collection = "fitness")
+// 컬럼별 null 가능 여부는 국민체력100 정재데이터의 null 여부도 반영
 data class Fitness(
     @Id
     val id: ObjectId? = null,
-    val memberId: Long,
+    val memberId: Long? = null,
     val ageRange: Int,
+    val age: Int? = null,
     val measurePlace: MeasurePlace? = null,
     val measureDay: LocalDate,
     val gender: Gender,
     val height: Decimal128,
     val weight: Decimal128,
     val bmi: Decimal128,
-    val strengthWeightedAmount: Decimal128,
-    val strengthLevel: Int,
-    val pushUpReps: Int,
-    val curlUpReps: Int,
-    val stepTestRecoveryBpm: Int,
-    val stepTestVo2max: Decimal128,
-    val sitAndReach: Int,
-    val standingLongJump: Decimal128,
-    val sideStepReps: Int,
+    val strengthWeightedAmount: Decimal128? = null,
+    val strengthLevel: Int? = null,
+    val pushUpReps: Int? = null,
+    val curlUpReps: Int? = null,
+    val stepTestRecoveryBpm: Int? = null,
+    val stepTestVo2max: Decimal128? = null,
+    val sitAndReach: Int? = null,
+    val standingLongJump: Decimal128? = null,
+    val sideStepReps: Int? = null,
     // 기본 값이 있어야 자동으로 들어감
     @CreatedDate
     val createdAt: Instant? = null,
@@ -44,6 +46,7 @@ data class Fitness(
         fun of(
             memberId: Long,
             ageRange: Int,
+            age: Int?,
             measureDay: LocalDate,
             request: FitnessCreateRequest,
             gender: Gender,
@@ -58,6 +61,7 @@ data class Fitness(
             return Fitness(
                 memberId = memberId,
                 ageRange = ageRange,
+                age = age,
                 measurePlace = m.measurePlace,
                 measureDay = measureDay,
                 gender = gender,

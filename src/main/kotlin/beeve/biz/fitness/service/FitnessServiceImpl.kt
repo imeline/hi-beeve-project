@@ -68,6 +68,7 @@ class FitnessServiceImpl(
 
         val newFitness = Fitness.of(
             memberId = memberId,
+            age = ageYears,
             ageRange = ageRange,
             measureDay = measureDay,
             request = request,
