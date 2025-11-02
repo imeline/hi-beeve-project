@@ -1,0 +1,23 @@
+@base = {{host}}/member
+
+### ─────────────────────────────────
+### 1) 회원 프로필 등록 또는 수정
+### ─────────────────────────────────
+POST {{base}}/profile
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "홍길동",
+  "birthDate": "1998-03-12",
+  "gender": "M",
+  "height": 178.5,
+  "weight": 70.2,
+  "profileUrl": "https://cdn.example.com/profile/1234.png"
+}
+
+### ─────────────────────────────────
+### 2) 회원 프로필 조회
+### ─────────────────────────────────
+GET {{base}}/profile
+Authorization: {{accessToken}}
