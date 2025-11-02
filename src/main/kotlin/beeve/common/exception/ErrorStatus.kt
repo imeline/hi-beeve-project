@@ -24,7 +24,10 @@ enum class ErrorStatus {
 
     // FITNESS
     FITNESS_TODAY_ALREADY_EXISTS("FITNESS301", "체력 측정은 하루에 1번만 가능합니다."),
-    FITNESS_NOT_FOUND("FITNESS302", "체력 측정 기록이 존재하지 않습니다.")
+    FITNESS_NOT_FOUND("FITNESS302", "체력 측정 기록이 존재하지 않습니다."),
+
+    // RECOMMEND
+    FAILED_TO_RECOMMEND_PROGRAM("RECOMMEND401", "추천 운동 생성에 실패하였습니다.");
     ;
 
     val httpStatus: HttpStatus
