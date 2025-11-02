@@ -17,8 +17,14 @@ enum class ErrorStatus {
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH104", "리프레시 토큰이 일치하지 않습니다."),
     EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH105", "리프레시 토큰이 만료되었습니다."),
     DUPLICATE_LOGIN_EMAIL("AUTH106", "기존 사용중인 이메일입니다."),
-    INVALID_LOGIN_CREDENTIALS("AUTH107", "아이디 또는 비밀번호가 일치하지 않습니다."),
-    SIGNUP_FAIL("AUTH108", "회원가입에 실패했습니다."),
+
+    // MEMBER
+    MEMBER_NOT_FOUND("MEMBER201", "회원이 존재하지 않습니다."),
+    MEMBER_PROFILE_NOT_FOUND("MEMBER202", "회원 프로필 정보가 존재하지 않습니다."),
+
+    // FITNESS
+    FITNESS_TODAY_ALREADY_EXISTS("FITNESS301", "체력 측정은 하루에 1번만 가능합니다."),
+    FITNESS_NOT_FOUND("FITNESS302", "체력 측정 기록이 존재하지 않습니다.")
     ;
 
     val httpStatus: HttpStatus

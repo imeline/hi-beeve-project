@@ -2,8 +2,13 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${JDBC_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: ${POSTGRESQL_USERNAME}
+    password: ${POSTGRESQL_PASSWORD}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
+
   jpa:
     open-in-view: false
     hibernate:
@@ -15,7 +20,7 @@ spring:
         highlight_sql: true
 
 cors:
-  allowed-origin: ${CORS_ALLOWED_ORIGIN}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}

@@ -1,3 +1,10 @@
-/gradlew text eol=lf
+# 모든 텍스트는 기본 LF
+* text=auto eol=lf
+
+# 윈도우용 배치만 CRLF
 *.bat text eol=crlf
+
+# 바이너리는 만지지 말기
 *.jar binary
+*.png binary
+*.jpg binary

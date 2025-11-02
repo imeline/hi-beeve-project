@@ -10,14 +10,19 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 class CorsConfig(
 
-    @Value("\${cors.allowed-origin}")
-    private val allowedOrigin: String
+    @Value("\${cors.allowed-origins}")
+    private val allowedOrigins: String
 ) {
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
+        val origins = allowedOrigins
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+
         val config = CorsConfiguration().apply {
-            allowedOriginPatterns = listOf(allowedOrigin)
+            allowedOriginPatterns = origins
             allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("Authorization", "Content-Type", "X-Requested-With")
             exposedHeaders = listOf("Authorization")
