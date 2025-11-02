@@ -41,4 +41,9 @@ class Member(
     @Column(length = 1, nullable = false)
     var deletedYn: String = "N"
 
-) : TimeStamped()
+) : TimeStamped() {
+
+    @get:Transient
+    val isPresentProfile: Boolean
+        get() = birthDate != null && gender != null && height != null && weight != null
+}

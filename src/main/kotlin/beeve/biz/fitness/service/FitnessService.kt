@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 interface FitnessService {
 
-    fun createFitness(memberId: Long, request: FitnessCreateRequest)
+    fun createFitness(memberId: Long, req: FitnessCreateRequest)
 
     fun getMeasureDates(memberId: Long): FitnessMeasureDatesResponse
 

@@ -31,7 +31,7 @@ class FitnessServiceImpl(
     private val KST = ZoneId.of("Asia/Seoul")
 
     @Transactional
-    override fun createFitness(memberId: Long, request: FitnessCreateRequest) {
+    override fun createFitness(memberId: Long, req: FitnessCreateRequest) {
         // 측정일은 "한국 시간" 기준 오늘
         val measureDay = LocalDate.now(KST)
 
@@ -42,17 +42,17 @@ class FitnessServiceImpl(
 
         // 1. profile 이 있으면 member 에 반영, 없으면 기존 member
         val member =
-            memberService.mergeProfileFromFitness(memberId, request.profile)
+            memberService.mergeProfileFromFitness(memberId, req.profile)
 
         // 2. 필수 프로필 필드 보장 검증
-        val validMember = memberService.validateProfileIfPresent(member)
+        if (!member.isPresentProfile)
+            throw GlobalException(ErrorStatus.MEMBER_PROFILE_NOT_FOUND)
+        val birthDate = member.birthDate!!
+        val gender = member.gender!!
+        val height = member.height!!
+        val weight = member.weight!!
 
-        val birthDate = validMember.birthDate!!
-        val gender = validMember.gender!!
-        val height = validMember.height!!
-        val weight = validMember.weight!!
-
-        // 실제 나이(VO2max에 필요)
+        // 만 나이
         val ageYears = Period.between(birthDate, measureDay).years
         // 10단위 나이대
         val ageRange = toAgeRange(ageYears)
@@ -60,8 +60,8 @@ class FitnessServiceImpl(
         val bmi = calculateBmi(height, weight)
         // 근력가중치
         val strengthWeighted = calculateStrengthWeightedAmount(
-            strengthLevel = request.measure.strengthLevel,
-            pushUpReps = request.measure.pushUpReps
+            strengthLevel = req.measure.strengthLevel,
+            pushUpReps = req.measure.pushUpReps
         )
         // 스텝테스트 VO2max
         val stepTestVo2max = calculateStepTestVo2max(
@@ -69,7 +69,7 @@ class FitnessServiceImpl(
             ageYears = ageYears,
             height = height,
             weight = weight,
-            recoveryBpm = request.measure.stepTestRecoveryBpm
+            recoveryBpm = req.measure.stepTestRecoveryBpm
         )
 
         val newFitness = Fitness.of(
@@ -77,7 +77,7 @@ class FitnessServiceImpl(
             age = ageYears,
             ageRange = ageRange,
             measureDay = measureDay,
-            request = request,
+            request = req,
             gender = gender,
             height = Decimal128(height),
             weight = Decimal128(weight),

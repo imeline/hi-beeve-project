@@ -35,7 +35,7 @@ data class Fitness(
     val sitAndReach: Int? = null,
     val standingLongJump: Decimal128? = null,
     val sideStepReps: Int? = null,
-    // 기본 값이 있어야 자동으로 들어감
+    // null 기본 값이 있어야 자동으로 들어감
     @CreatedDate
     val createdAt: Instant? = null,
     @LastModifiedDate

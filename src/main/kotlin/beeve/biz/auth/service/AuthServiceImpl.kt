@@ -1,7 +1,7 @@
 package beeve.biz.auth.service
 
-import beeve.biz.auth.dto.request.SocialLoginRequest
 import beeve.biz.auth.dto.request.RefreshTokenRequest
+import beeve.biz.auth.dto.request.SocialLoginRequest
 import beeve.biz.auth.dto.response.TokenResponse
 import beeve.biz.auth.entity.RefreshToken
 import beeve.biz.auth.repository.RefreshTokenRepository
@@ -21,11 +21,11 @@ class AuthServiceImpl(
 ) : AuthService {
 
     @Transactional
-    override fun socialLogin(request: SocialLoginRequest): TokenResponse {
+    override fun socialLogin(req: SocialLoginRequest): TokenResponse {
         // todo: 탈퇴 회원 검증 필요
         // 소셜 인증 정보 조회
         val social = socialAuthRepository
-            .findByProviderAndProviderUserId(request.provider, request.providerUserId)
+            .findByProviderAndProviderUserId(req.provider, req.providerUserId)
             .orElseThrow { GlobalException(ErrorStatus.SOCIAL_AUTH_NOT_FOUND) }
 
         val memberId = social.memberId
@@ -48,8 +48,8 @@ class AuthServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun refresh(request: RefreshTokenRequest): TokenResponse {
-        val reqRefresh = request.refreshToken
+    override fun refresh(req: RefreshTokenRequest): TokenResponse {
+        val reqRefresh = req.refreshToken
         val memberId = jwtTokenProvider.extractMemberId(reqRefresh)
 
         val refreshRow = validRefreshTokenRowByMemberId(memberId)
@@ -63,9 +63,9 @@ class AuthServiceImpl(
     }
 
     @Transactional
-    override fun logout(memberId: Long, request: RefreshTokenRequest) {
+    override fun logout(memberId: Long, req: RefreshTokenRequest) {
         val refreshRow = validRefreshTokenRowByMemberId(memberId)
-        validRefreshTokenEquals(refreshRow, request.refreshToken)
+        validRefreshTokenEquals(refreshRow, req.refreshToken)
         refreshTokenRepository.deleteByMemberId(memberId)
     }
 

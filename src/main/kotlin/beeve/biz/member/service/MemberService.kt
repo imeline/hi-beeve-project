@@ -9,8 +9,6 @@ interface MemberService {
 
     fun mergeProfileFromFitness(
         memberId: Long,
-        profile: FitnessProfileRequest?
+        req: FitnessProfileRequest?
     ): Member
-
-    fun validateProfileIfPresent(member: Member): Member
 }
