@@ -73,5 +73,5 @@ Authorization: {{accessToken}}
 ### ─────────────────────────────────
 ### 5) 체력 측정 조회 - 날짜별
 ### ─────────────────────────────────
-GET {{base}}?measureDay=2025-11-01
+GET {{base}}?measureDay=2025-11-02
 Authorization: {{accessToken}}

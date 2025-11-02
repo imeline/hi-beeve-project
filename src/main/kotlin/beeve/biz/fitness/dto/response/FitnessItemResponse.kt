@@ -1,5 +1,6 @@
 package beeve.biz.fitness.dto.response
 
+import beeve.biz.fitness.dto.internal.TypePerRankResult
 import beeve.biz.fitness.enum.FitnessType
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
@@ -26,4 +27,13 @@ data class FitnessItemResponse(
 
     @field:Schema(description = "그래프에 표시할 상대 순위 값 (0.0 ~ 1.0)")
     val graphPosition: Double,
-)
+) {
+    companion object {
+        fun from(r: TypePerRankResult) = FitnessItemResponse(
+            fitnessType = r.fitnessType,
+            strengthLevel = r.strengthLevel,
+            value = r.value,
+            graphPosition = r.graphPosition,
+        )
+    }
+}

@@ -13,4 +13,11 @@ data class FitnessMeasureDatesResponse(
         description = "측정한 날짜 리스트 (최근순 정렬)"
     )
     val measureDates: List<LocalDate>,
-)
+) {
+    companion object {
+        fun from(measureDays: List<LocalDate>) = FitnessMeasureDatesResponse(
+            totalCount = measureDays.size,
+            measureDates = measureDays
+        )
+    }
+}
