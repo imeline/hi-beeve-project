@@ -15,12 +15,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class GlobalExceptionHandler {
 
-    // 왜 default로 prod 프로필을 사용하지 않는지?
-    // 로컬에서 prod로 연결되어 버리면 실제 운영 DB에 연결될 수 있기 때문
-    @Value("\${spring.profiles.active:dev}")
-    private lateinit var activeProfile: String
-
-    // 코틀린 Lombok 불안정 문제로 인해 @Slf4j 대신 LoggerFactory 사용
     companion object {
         private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
     }
@@ -102,15 +96,10 @@ class GlobalExceptionHandler {
         if (ex is GlobalException) {
             return handleGlobalException(ex, request, response)
         }
-
-        val isProd = "prod".equals(activeProfile, ignoreCase = true)
         response.status = HttpStatus.INTERNAL_SERVER_ERROR.value()
-        // 배포 환경에서는 내부 오류 메시지를 숨김
+
         log.warn("uri: {}, fields: {}", request.requestURI, ex.message, ex)
-        return if (isProd) {
-            ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR)
-        } else {
-            ApiResponse.onFailure(ErrorStatus.INTERNAL_SERVER_ERROR, ex.message ?: "서버 오류")
-        }
+        return ApiResponse.onFailure(
+            ErrorStatus.INTERNAL_SERVER_ERROR, ex.message ?: "서버 오류")
     }
 }
