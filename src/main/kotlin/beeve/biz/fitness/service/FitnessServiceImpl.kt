@@ -3,7 +3,6 @@ package beeve.biz.fitness.service
 import beeve.biz.fitness.dto.internal.TypePerRankResult
 import beeve.biz.fitness.dto.request.FitnessCreateRequest
 import beeve.biz.fitness.dto.response.FitnessGetResponse
-import beeve.biz.fitness.dto.response.FitnessItemResponse
 import beeve.biz.fitness.dto.response.FitnessMeasureDatesResponse
 import beeve.biz.fitness.entity.Fitness
 import beeve.biz.fitness.enum.FitnessType
@@ -95,10 +94,7 @@ class FitnessServiceImpl(
             .findAllByMemberIdAndDeletedYnOrderByMeasureDayDesc(memberId)
             .map { it.measureDay }
 
-        return FitnessMeasureDatesResponse(
-            totalCount = measureDays.size,
-            measureDates = measureDays,
-        )
+        return FitnessMeasureDatesResponse.from(measureDays)
     }
 
     @Transactional(readOnly = true)
@@ -150,22 +146,13 @@ class FitnessServiceImpl(
         val grade = rankToGrade(finalRank, total)
 
         // 6) DTO 변환
-        return FitnessGetResponse(
-            grade = grade,
-            rank = finalRank,
+        return FitnessGetResponse.from(
+            fitness = myFitness,
+            typeResults = typePerResults,
+            finalRank = finalRank,
             total = total,
-            measurePlace = myFitness.measurePlace,
-            height = myFitness.height.bigDecimalValue(),
-            weight = myFitness.weight.bigDecimalValue(),
-            age = myAge,
-            fitness = typePerResults.map { r ->
-                FitnessItemResponse(
-                    fitnessType = r.fitnessType,
-                    strengthLevel = r.strengthLevel,
-                    value = r.value,
-                    graphPosition = r.graphPosition,
-                )
-            },
+            grade = grade,
+            age = myAge
         )
     }
 

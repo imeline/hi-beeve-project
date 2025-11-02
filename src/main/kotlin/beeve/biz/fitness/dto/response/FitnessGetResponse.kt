@@ -1,5 +1,7 @@
 package beeve.biz.fitness.dto.response
 
+import beeve.biz.fitness.dto.internal.TypePerRankResult
+import beeve.biz.fitness.entity.Fitness
 import beeve.biz.fitness.enum.MeasurePlace
 import io.swagger.v3.oas.annotations.media.Schema
 import java.math.BigDecimal
@@ -30,4 +32,24 @@ data class FitnessGetResponse(
 
     @field:Schema(description = "체력별 상세 정보")
     val fitness: List<FitnessItemResponse>,
-)
+) {
+    companion object {
+        fun from(
+            fitness: Fitness,
+            typeResults: List<TypePerRankResult>,
+            finalRank: Int,
+            total: Int,
+            grade: Int,
+            age: Int,
+        ): FitnessGetResponse = FitnessGetResponse(
+            grade = grade,
+            rank = finalRank,
+            total = total,
+            measurePlace = fitness.measurePlace,
+            height = fitness.height.bigDecimalValue(),
+            weight = fitness.weight.bigDecimalValue(),
+            age = age,
+            fitness = typeResults.map(FitnessItemResponse::from),
+        )
+    }
+}
