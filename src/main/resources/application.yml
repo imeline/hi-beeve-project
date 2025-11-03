@@ -53,4 +53,4 @@ feign:
 
 google:
   ai:
-    api-key: ${GEMINI_API_KEY:AIzaSyDAbK4-aibZyXM2iuDrBBCr5cTDsX5BHHU}
+    api-key: ${GEMINI_API_KEY:}
