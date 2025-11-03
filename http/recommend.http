@@ -1,0 +1,16 @@
+@base = {{host}}/recommend
+
+### ─────────────────────────────────
+### 1) 운동 추천
+### ─────────────────────────────────
+POST {{base}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "gender": "2000-01-01",
+  "age": "F",
+  "contraindications": "어깨충돌증후군",
+  "measurePlace": "HOME",
+  "purpose": "FAT_LOSS"
+}
