@@ -1,31 +1,41 @@
 package beeve.biz.fitness.dto.request
 
+import beeve.biz.fitness.enum.MeasurePlace
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.Valid
-import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import java.math.BigDecimal
 
-@Schema(
-    description = """
-체력 측정 생성 요청
-
-- 첫 체력 측정 때만 profile 을 보냅니다.
-- 이후 요청부터는 profile 을 null 로 보내고, measure 만 전송합니다.
-"""
-)
+@Schema(description = "체력 측정 생성 요청")
 data class FitnessCreateRequest(
 
     @field:Schema(
-        description = "회원 프로필 정보. 첫 체력 측정 때만 값으로 전송, " +
-                "이후에는 null 혹은 필드 자체를 제외",
-        nullable = true
+        description = "측정 장소 (HOME, OUTDOOR, GYM). 없으면 null 로 요청",
+        nullable = true,
+        allowableValues = ["HOME", "OUTDOOR", "GYM"]
     )
-    @field:Valid
-    val profile: FitnessProfileRequest? = null,
+    val measurePlace: MeasurePlace? = null,
 
-    @field:Schema(
-        description = "실제 체력 측정값. 매 요청마다 필수"
-    )
-    @field:Valid
-    @field:NotNull(message = "measure 는 필수입니다.")
-    val measure: FitnessMeasureRequest
+    @field:Schema(description = "근력 운동 레벨 (1: 쉬움 ~ 3: 어려움)")
+    @field:Min(1)
+    @field:Max(3)
+    val strengthLevel: Int,
+
+    @field:Schema(description = "팔굽혀펴기 횟수")
+    val pushUpReps: Int,
+
+    @field:Schema(description = "윗몸말아올리기 횟수")
+    val curlUpReps: Int,
+
+    @field:Schema(description = "스텝검사 회복시 심박수(bpm)")
+    val stepTestRecoveryBpm: Int,
+
+    @field:Schema(description = "앉아윗몸앞으로굽히기 횟수")
+    val sitAndReach: Int,
+
+    @field:Schema(description = "제자리 멀리뛰기(cm)")
+    val standingLongJump: BigDecimal,
+
+    @field:Schema(description = "반복옆뛰기 횟수")
+    val sideStepReps: Int,
 )

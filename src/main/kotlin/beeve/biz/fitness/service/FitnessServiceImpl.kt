@@ -34,14 +34,12 @@ class FitnessServiceImpl(
         // 측정일은 "한국 시간" 기준 오늘
         val measureDay = LocalDate.now(KST)
 
-        // 측정은 하루에 1번 가능
+        // 1. 측정은 하루에 1번 가능
         if (fitnessRepository.existsByMemberIdAndMeasureDay(memberId, measureDay)) {
             throw GlobalException(ErrorStatus.FITNESS_TODAY_ALREADY_EXISTS)
         }
 
-        // 1. profile 이 있으면 member 에 반영, 없으면 기존 member
-        val member =
-            memberService.mergeProfileFromFitness(memberId, req.profile)
+        val member = memberService.getById(memberId)
 
         // 2. 필수 프로필 필드 보장 검증
         if (!member.isPresentProfile)
@@ -59,8 +57,8 @@ class FitnessServiceImpl(
         val bmi = calculateBmi(height, weight)
         // 근력가중치
         val strengthWeighted = calculateStrengthWeightedAmount(
-            strengthLevel = req.measure.strengthLevel,
-            pushUpReps = req.measure.pushUpReps
+            strengthLevel = req.strengthLevel,
+            pushUpReps = req.pushUpReps
         )
         // 스텝테스트 VO2max
         val stepTestVo2max = calculateStepTestVo2max(
@@ -68,15 +66,15 @@ class FitnessServiceImpl(
             ageYears = ageYears,
             height = height,
             weight = weight,
-            recoveryBpm = req.measure.stepTestRecoveryBpm
+            recoveryBpm = req.stepTestRecoveryBpm
         )
 
-        val newFitness = Fitness.of(
+        val newFitness = Fitness.createFitness(
             memberId = memberId,
             age = ageYears,
             ageRange = ageRange,
             measureDay = measureDay,
-            request = req,
+            req = req,
             gender = gender,
             height = Decimal128(height),
             weight = Decimal128(weight),
