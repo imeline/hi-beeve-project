@@ -9,4 +9,5 @@ interface AuthService {
     fun socialLogin(req: SocialLoginRequest): TokenResponse
     fun refresh(req: RefreshTokenRequest): TokenResponse
     fun logout(memberId: Long, req: RefreshTokenRequest)
+    fun deleteRefreshToken(memberId: Long)
 }

@@ -4,6 +4,8 @@ import beeve.biz.member.dto.request.MemberProfileRequest
 import beeve.biz.member.enum.Gender
 import beeve.common.base.TimeStamped
 import jakarta.persistence.*
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -36,6 +38,11 @@ class Member(
     @Column(length = 255)
     var profileUrl: String? = null,
 
+    @field:Min(1)
+    @field:Max(5)
+    @Column(columnDefinition = "SMALLINT")
+    val totalGrade: Short? = null,
+
     @Column(length = 255)
     var withdrawReason: String? = null,
 
@@ -57,5 +64,10 @@ class Member(
         req.height?.let { height = it }
         req.weight?.let { weight = it }
         req.profileUrl?.let { profileUrl = it }
+    }
+
+    fun withdraw(reason: String?): Member = apply {
+        withdrawReason = reason
+        deletedYn = "Y"
     }
 }

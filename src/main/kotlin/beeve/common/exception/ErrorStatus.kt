@@ -21,6 +21,7 @@ enum class ErrorStatus {
     // MEMBER
     MEMBER_NOT_FOUND("MEMBER201", "회원이 존재하지 않습니다."),
     MEMBER_PROFILE_NOT_FOUND("MEMBER202", "회원 프로필 정보가 존재하지 않습니다."),
+    MEMBER_ALREADY_WITHDRAWN("MEMBER203", "이미 탈퇴된 회원입니다."),
 
     // FITNESS
     FITNESS_TODAY_ALREADY_EXISTS("FITNESS301", "체력 측정은 하루에 1번만 가능합니다."),

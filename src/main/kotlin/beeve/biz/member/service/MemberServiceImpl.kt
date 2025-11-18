@@ -1,6 +1,8 @@
 package beeve.biz.member.service
 
+import beeve.biz.auth.service.AuthService
 import beeve.biz.member.dto.request.MemberProfileRequest
+import beeve.biz.member.dto.request.MemberWithdrawRequest
 import beeve.biz.member.dto.response.MemberProfileResponse
 import beeve.biz.member.entity.Member
 import beeve.biz.member.repository.MemberRepository
@@ -11,12 +13,13 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class MemberServiceImpl(
-    private val memberRepository: MemberRepository
+    private val memberRepository: MemberRepository,
+    private val authService: AuthService
 ) : MemberService {
 
     @Transactional(readOnly = true)
     override fun getById(memberId: Long): Member {
-        return memberRepository.findById(memberId)
+        return memberRepository.findByMemberIdAndDeletedYn(memberId)
             .orElseThrow { GlobalException(ErrorStatus.MEMBER_NOT_FOUND) }
     }
 
@@ -31,5 +34,20 @@ class MemberServiceImpl(
     override fun getProfile(memberId: Long): MemberProfileResponse {
         val member = getById(memberId)
         return MemberProfileResponse.from(member)
+    }
+
+    @Transactional
+    override fun withdraw(memberId: Long, req: MemberWithdrawRequest) {
+        val member = getById(memberId)
+
+        if (member.deletedYn == "Y") {
+            throw GlobalException(ErrorStatus.MEMBER_ALREADY_WITHDRAWN)
+        }
+
+        member.withdraw(req.withdrawReason)
+        memberRepository.save(member)
+
+        // 연관된 리프레시 토큰 삭제
+        authService.deleteRefreshToken(memberId)
     }
 }

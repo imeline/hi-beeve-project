@@ -66,6 +66,11 @@ class AuthServiceImpl(
     override fun logout(memberId: Long, req: RefreshTokenRequest) {
         val refreshRow = validRefreshTokenRowByMemberId(memberId)
         validRefreshTokenEquals(refreshRow, req.refreshToken)
+        deleteRefreshToken(memberId)
+    }
+
+    @Transactional
+    override fun deleteRefreshToken(memberId: Long) {
         refreshTokenRepository.deleteByMemberId(memberId)
     }
 
