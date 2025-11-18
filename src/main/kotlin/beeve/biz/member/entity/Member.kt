@@ -2,7 +2,7 @@ package beeve.biz.member.entity
 
 import beeve.biz.member.dto.request.MemberProfileRequest
 import beeve.biz.member.enum.Gender
-import beeve.common.base.TimeStamped
+import beeve.common.base.SoftDeletableTimeStamped
 import jakarta.persistence.*
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -44,12 +44,9 @@ class Member(
     val totalGrade: Short? = null,
 
     @Column(length = 255)
-    var withdrawReason: String? = null,
+    var withdrawReason: String? = null
 
-    @Column(length = 1, nullable = false)
-    var deletedYn: String = "N"
-
-) : TimeStamped() {
+) : SoftDeletableTimeStamped() {
 
     @get:Transient
     val isPresentProfile: Boolean

@@ -1,7 +1,7 @@
 package beeve.biz.auth.entity
 
 import beeve.biz.auth.enum.Provider
-import beeve.common.base.TimeStamped
+import beeve.common.base.SoftDeletableTimeStamped
 import jakarta.persistence.*
 
 @Entity
@@ -26,4 +26,4 @@ class SocialAuth(
     @Column(name = "consent_scope", length = 255)
     val consentScope: String? = null
 
-) : TimeStamped()
+) : SoftDeletableTimeStamped()
