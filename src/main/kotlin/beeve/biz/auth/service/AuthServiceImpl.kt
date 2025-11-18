@@ -12,6 +12,7 @@ import beeve.biz.auth.security.UserPrincipal
 import beeve.biz.member.service.MemberService
 import beeve.common.exception.ErrorStatus
 import beeve.common.exception.GlobalException
+import io.jsonwebtoken.ExpiredJwtException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -55,13 +56,24 @@ class AuthServiceImpl(
     @Transactional(readOnly = true)
     override fun refresh(req: RefreshTokenRequest): AccessTokenResponse {
         val reqRefresh = req.refreshToken
-        val memberId = jwtTokenProvider.extractMemberId(reqRefresh)
+        val memberId = try {
+            // 리프레시 토큰에서 memberId 추출
+            jwtTokenProvider.extractMemberId(reqRefresh)
+        } catch (e: ExpiredJwtException) { // 만료된 리프레시 토큰 예외 처리
+            // 만료된 토큰의 memberId로 DB 행 삭제
+            val expiredMemberId = e.claims.subject?.toLongOrNull()
+            if (expiredMemberId != null) {
+                refreshTokenRepository.deleteByMemberId(expiredMemberId)
+            }
+            throw GlobalException(ErrorStatus.EXPIRED_REFRESH_TOKEN)
+        } catch (e: Exception) { // 형식 이상 / 서명 오류 등 예외 처리
+            throw GlobalException(ErrorStatus.INVALID_REFRESH_TOKEN)
+        }
 
+        // 리프레쉬 토큰 행 조회 및 존재 검증
         val refreshRow = validRefreshTokenRowByMemberId(memberId)
+        // 리프레쉬 토큰 (DB 저장값 = 요청 값) 검증
         validRefreshTokenEquals(refreshRow, reqRefresh)
-
-        // 리프레스 토큰 만료 검증
-        validRefreshTokenNotExpired(reqRefresh)
 
         val newAccess = jwtTokenProvider.generateAccessToken(UserPrincipal.of(memberId))
         return AccessTokenResponse(accessToken = newAccess)
@@ -86,13 +98,5 @@ class AuthServiceImpl(
         if (dbRefreshRaw.isNullOrBlank() || dbRefreshRaw != reqRefreshRaw) {
             throw GlobalException(ErrorStatus.INVALID_REFRESH_TOKEN)
         }
-    }
-
-    /** 리프레쉬 토큰 만료 검증, 만료 시 DB에서 삭제 후 예외 */
-    private fun validRefreshTokenNotExpired(reqRefresh: String) {
-        if (jwtTokenProvider.validateToken(reqRefresh)) return
-        val memberId = jwtTokenProvider.extractMemberId(reqRefresh)
-        refreshTokenRepository.deleteByMemberId(memberId)
-        throw GlobalException(ErrorStatus.EXPIRED_REFRESH_TOKEN)
     }
 }
