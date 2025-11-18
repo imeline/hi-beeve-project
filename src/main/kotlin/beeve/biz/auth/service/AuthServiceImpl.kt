@@ -2,7 +2,8 @@ package beeve.biz.auth.service
 
 import beeve.biz.auth.dto.request.RefreshTokenRequest
 import beeve.biz.auth.dto.request.SocialLoginRequest
-import beeve.biz.auth.dto.response.TokenResponse
+import beeve.biz.auth.dto.response.AccessTokenResponse
+import beeve.biz.auth.dto.response.LoginResponse
 import beeve.biz.auth.entity.RefreshToken
 import beeve.biz.auth.repository.RefreshTokenRepository
 import beeve.biz.auth.repository.SocialAuthRepository
@@ -23,7 +24,7 @@ class AuthServiceImpl(
 ) : AuthService {
 
     @Transactional
-    override fun socialLogin(req: SocialLoginRequest): TokenResponse {
+    override fun socialLogin(req: SocialLoginRequest): LoginResponse {
         // 소셜 인증 정보 조회
         val social = socialAuthRepository
             .findByProviderAndProviderUserId(req.provider, req.providerUserId)
@@ -48,11 +49,11 @@ class AuthServiceImpl(
                 { refreshTokenRepository.save(RefreshToken.createRefreshToken(memberId, refreshRaw)) }
             )
 
-        return TokenResponse(accessToken = access, refreshToken = refresh)
+        return LoginResponse(accessToken = access, refreshToken = refresh, name = member.name)
     }
 
     @Transactional(readOnly = true)
-    override fun refresh(req: RefreshTokenRequest): TokenResponse {
+    override fun refresh(req: RefreshTokenRequest): AccessTokenResponse {
         val reqRefresh = req.refreshToken
         val memberId = jwtTokenProvider.extractMemberId(reqRefresh)
 
@@ -63,18 +64,13 @@ class AuthServiceImpl(
         validRefreshTokenNotExpired(reqRefresh)
 
         val newAccess = jwtTokenProvider.generateAccessToken(UserPrincipal.of(memberId))
-        return TokenResponse(accessToken = newAccess)
+        return AccessTokenResponse(accessToken = newAccess)
     }
 
     @Transactional
     override fun logout(memberId: Long, req: RefreshTokenRequest) {
         val refreshRow = validRefreshTokenRowByMemberId(memberId)
         validRefreshTokenEquals(refreshRow, req.refreshToken)
-        deleteRefreshToken(memberId)
-    }
-
-    @Transactional
-    override fun deleteRefreshToken(memberId: Long) {
         refreshTokenRepository.deleteByMemberId(memberId)
     }
 

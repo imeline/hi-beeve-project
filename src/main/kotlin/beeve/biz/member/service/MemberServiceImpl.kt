@@ -1,6 +1,6 @@
 package beeve.biz.member.service
 
-import beeve.biz.auth.service.AuthService
+import beeve.biz.auth.repository.RefreshTokenRepository
 import beeve.biz.member.dto.request.MemberProfileRequest
 import beeve.biz.member.dto.request.MemberWithdrawRequest
 import beeve.biz.member.dto.response.MemberProfileResponse
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class MemberServiceImpl(
     private val memberRepository: MemberRepository,
-    private val authService: AuthService
+    private val refreshTokenRepository: RefreshTokenRepository
 ) : MemberService {
 
     @Transactional(readOnly = true)
@@ -44,6 +44,6 @@ class MemberServiceImpl(
         memberRepository.save(member)
 
         // 연관된 리프레시 토큰 삭제
-        authService.deleteRefreshToken(memberId)
+        refreshTokenRepository.deleteByMemberId(memberId)
     }
 }
