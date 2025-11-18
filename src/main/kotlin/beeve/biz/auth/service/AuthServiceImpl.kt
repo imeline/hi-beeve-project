@@ -8,6 +8,7 @@ import beeve.biz.auth.repository.RefreshTokenRepository
 import beeve.biz.auth.repository.SocialAuthRepository
 import beeve.biz.auth.security.JwtTokenProvider
 import beeve.biz.auth.security.UserPrincipal
+import beeve.biz.member.service.MemberService
 import beeve.common.exception.ErrorStatus
 import beeve.common.exception.GlobalException
 import org.springframework.stereotype.Service
@@ -17,18 +18,21 @@ import org.springframework.transaction.annotation.Transactional
 class AuthServiceImpl(
     private val jwtTokenProvider: JwtTokenProvider,
     private val socialAuthRepository: SocialAuthRepository,
-    private val refreshTokenRepository: RefreshTokenRepository
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val memberService: MemberService
 ) : AuthService {
 
     @Transactional
     override fun socialLogin(req: SocialLoginRequest): TokenResponse {
-        // todo: 탈퇴 회원 검증 필요
         // 소셜 인증 정보 조회
         val social = socialAuthRepository
             .findByProviderAndProviderUserId(req.provider, req.providerUserId)
             .orElseThrow { GlobalException(ErrorStatus.SOCIAL_AUTH_NOT_FOUND) }
 
-        val memberId = social.memberId
+        // social.memberId 에 해당하는 member 이 있고, 활성 상태인지 확인
+        val member = memberService.getActiveMemberById(social.memberId)
+
+        val memberId = member.memberId!!
         val principal = UserPrincipal.of(memberId)
 
         // 토큰 발급

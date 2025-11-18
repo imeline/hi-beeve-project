@@ -18,31 +18,27 @@ class MemberServiceImpl(
 ) : MemberService {
 
     @Transactional(readOnly = true)
-    override fun getById(memberId: Long): Member {
+    override fun getActiveMemberById(memberId: Long): Member {
         return memberRepository.findByMemberIdAndDeletedYn(memberId)
             .orElseThrow { GlobalException(ErrorStatus.MEMBER_NOT_FOUND) }
     }
 
     @Transactional
     override fun createAndUpdateProfile(memberId: Long, req: MemberProfileRequest) {
-        val member = getById(memberId)
+        val member = getActiveMemberById(memberId)
         member.createAndUpdateProfile(req)
         memberRepository.save(member)
     }
 
     @Transactional(readOnly = true)
     override fun getProfile(memberId: Long): MemberProfileResponse {
-        val member = getById(memberId)
+        val member = getActiveMemberById(memberId)
         return MemberProfileResponse.from(member)
     }
 
     @Transactional
     override fun withdraw(memberId: Long, req: MemberWithdrawRequest) {
-        val member = getById(memberId)
-
-        if (member.deletedYn == "Y") {
-            throw GlobalException(ErrorStatus.MEMBER_ALREADY_WITHDRAWN)
-        }
+        val member = getActiveMemberById(memberId)
 
         member.withdraw(req.withdrawReason)
         memberRepository.save(member)

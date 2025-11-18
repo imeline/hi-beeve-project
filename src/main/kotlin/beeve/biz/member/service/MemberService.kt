@@ -7,7 +7,7 @@ import beeve.biz.member.entity.Member
 
 interface MemberService {
 
-    fun getById(memberId: Long): Member
+    fun getActiveMemberById(memberId: Long): Member
 
     fun createAndUpdateProfile(memberId: Long, req: MemberProfileRequest)
 
