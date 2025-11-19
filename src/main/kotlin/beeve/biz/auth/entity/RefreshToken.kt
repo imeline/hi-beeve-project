@@ -1,12 +1,7 @@
 package beeve.biz.auth.entity
 
 import beeve.common.base.TimeStamped
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "refresh_token")
@@ -30,7 +25,7 @@ class RefreshToken(
     }
 
     companion object {
-        fun of(memberId: Long, token: String?): RefreshToken =
+        fun createRefreshToken(memberId: Long, token: String?): RefreshToken =
             RefreshToken(memberId = memberId, token = token)
     }
 }

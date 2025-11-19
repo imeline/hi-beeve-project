@@ -41,7 +41,7 @@ class AuthServiceImpl(
         refreshTokenRepository.findByMemberId(memberId)
             .ifPresentOrElse(
                 { it.updateToken(refreshRaw) },
-                { refreshTokenRepository.save(RefreshToken.of(memberId, refreshRaw)) }
+                { refreshTokenRepository.save(RefreshToken.createRefreshToken(memberId, refreshRaw)) }
             )
 
         return TokenResponse(accessToken = access, refreshToken = refresh)

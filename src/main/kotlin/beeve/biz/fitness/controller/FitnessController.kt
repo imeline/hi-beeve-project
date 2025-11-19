@@ -23,8 +23,7 @@ class FitnessController(
     @Operation(
         summary = "체력 측정값 등록",
         description = """
-        첫 회원 정보 등록 시에는 profile 필드를 값으로 보내고,
-        그 이후 요청부터는 null 로 보냅니다.
+        회원의 기존 프로필(생년월일/성별/키/몸무게)이 등록되어 있어야 합니다.
         측정일(measureDay)은 서버에서 오늘 날짜로 처리합니다.
         """,
     )

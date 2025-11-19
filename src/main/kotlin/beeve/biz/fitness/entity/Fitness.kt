@@ -43,12 +43,12 @@ data class Fitness(
     val deletedYn: String = "N",
 ) {
     companion object {
-        fun of(
+        fun createFitness(
             memberId: Long,
             ageRange: Int,
             age: Int?,
             measureDay: LocalDate,
-            request: FitnessCreateRequest,
+            req: FitnessCreateRequest,
             gender: Gender,
             height: Decimal128,
             weight: Decimal128,
@@ -56,27 +56,25 @@ data class Fitness(
             strengthWeightedAmount: Decimal128,
             stepTestVo2max: Decimal128,
         ): Fitness {
-            val m = request.measure
-
             return Fitness(
                 memberId = memberId,
                 ageRange = ageRange,
                 age = age,
-                measurePlace = m.measurePlace,
+                measurePlace = req.measurePlace,
                 measureDay = measureDay,
                 gender = gender,
                 height = height,
                 weight = weight,
                 bmi = bmi,
                 strengthWeightedAmount = strengthWeightedAmount,
-                strengthLevel = m.strengthLevel,
-                pushUpReps = m.pushUpReps,
-                curlUpReps = m.curlUpReps,
-                stepTestRecoveryBpm = m.stepTestRecoveryBpm,
+                strengthLevel = req.strengthLevel,
+                pushUpReps = req.pushUpReps,
+                curlUpReps = req.curlUpReps,
+                stepTestRecoveryBpm = req.stepTestRecoveryBpm,
                 stepTestVo2max = stepTestVo2max,
-                sitAndReach = m.sitAndReach,
-                standingLongJump = Decimal128(m.standingLongJump),
-                sideStepReps = m.sideStepReps,
+                sitAndReach = req.sitAndReach,
+                standingLongJump = Decimal128(req.standingLongJump),
+                sideStepReps = req.sideStepReps,
             )
         }
     }
