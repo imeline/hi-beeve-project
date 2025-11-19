@@ -22,4 +22,9 @@ interface SocialAuthRepository : JpaRepository<SocialAuth, Long> {
     """
     )
     fun softDeleteAllByMemberId(memberId: Long): Int
+
+    fun existsByProviderAndProviderUserId(
+        provider: Provider,
+        providerUserId: String
+    ): Boolean
 }

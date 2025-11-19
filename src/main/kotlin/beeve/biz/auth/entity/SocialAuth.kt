@@ -26,4 +26,20 @@ class SocialAuth(
     @Column(name = "consent_scope", length = 255)
     val consentScope: String? = null
 
-) : SoftDeletableTimeStamped()
+) : SoftDeletableTimeStamped() {
+
+    companion object {
+        fun create(
+            memberId: Long,
+            provider: Provider,
+            providerUserId: String
+        ): SocialAuth {
+            return SocialAuth(
+                memberId = memberId,
+                provider = provider,
+                providerUserId = providerUserId,
+                consentScope = null
+            )
+        }
+    }
+}

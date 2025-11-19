@@ -1,10 +1,12 @@
 package beeve.biz.auth.service
 
 import beeve.biz.auth.dto.request.RefreshTokenRequest
+import beeve.biz.auth.dto.request.SignupRequest
 import beeve.biz.auth.dto.request.SocialLoginRequest
 import beeve.biz.auth.dto.response.AccessTokenResponse
 import beeve.biz.auth.dto.response.LoginResponse
 import beeve.biz.auth.entity.RefreshToken
+import beeve.biz.auth.entity.SocialAuth
 import beeve.biz.auth.repository.RefreshTokenRepository
 import beeve.biz.auth.repository.SocialAuthRepository
 import beeve.biz.auth.security.JwtTokenProvider
@@ -23,6 +25,25 @@ class AuthServiceImpl(
     private val refreshTokenRepository: RefreshTokenRepository,
     private val memberService: MemberService
 ) : AuthService {
+
+    @Transactional
+    override fun signup(req: SignupRequest) {
+        // 기존 가입 소셜 정보인지 확인
+        // 탈퇴 회원 재가입 불가
+        if (socialAuthRepository.existsByProviderAndProviderUserId(req.provider, req.providerUserId)) {
+            throw GlobalException(ErrorStatus.SOCIAL_AUTH_ALREADY_EXISTS)
+        }
+        // Member 생성
+        val savedMember = memberService.createMember(req)
+
+        // SocialAuth 생성
+        val social = SocialAuth.create(
+            memberId = savedMember.memberId!!,
+            provider = req.provider,
+            providerUserId = req.providerUserId
+        )
+        socialAuthRepository.save(social)
+    }
 
     @Transactional
     override fun socialLogin(req: SocialLoginRequest): LoginResponse {

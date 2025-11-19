@@ -40,14 +40,10 @@ class FitnessServiceImpl(
         }
 
         val member = memberService.getActiveMemberById(memberId)
-
-        // 2. 필수 프로필 필드 보장 검증
-        if (!member.isPresentProfile)
-            throw GlobalException(ErrorStatus.MEMBER_PROFILE_NOT_FOUND)
-        val birthDate = member.birthDate!!
-        val gender = member.gender!!
-        val height = member.height!!
-        val weight = member.weight!!
+        val birthDate = member.birthDate
+        val gender = member.gender
+        val height = member.height
+        val weight = member.weight
 
         // 만 나이
         val ageYears = Period.between(birthDate, measureDay).years
