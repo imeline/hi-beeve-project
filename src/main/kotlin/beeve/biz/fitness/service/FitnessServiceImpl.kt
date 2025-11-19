@@ -39,7 +39,7 @@ class FitnessServiceImpl(
             throw GlobalException(ErrorStatus.FITNESS_TODAY_ALREADY_EXISTS)
         }
 
-        val member = memberService.getById(memberId)
+        val member = memberService.getActiveMemberById(memberId)
 
         // 2. 필수 프로필 필드 보장 검증
         if (!member.isPresentProfile)

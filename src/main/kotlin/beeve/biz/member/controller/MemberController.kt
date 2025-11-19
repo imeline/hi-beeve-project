@@ -2,6 +2,7 @@ package beeve.biz.member.controller
 
 import beeve.biz.auth.security.JwtTokenProvider
 import beeve.biz.member.dto.request.MemberProfileRequest
+import beeve.biz.member.dto.request.MemberWithdrawRequest
 import beeve.biz.member.dto.response.MemberProfileResponse
 import beeve.biz.member.service.MemberService
 import beeve.common.response.ApiResponse
@@ -49,5 +50,21 @@ class MemberController(
         val memberId = jwtTokenProvider.extractMemberId(accessHeader)
         val res = memberService.getProfile(memberId)
         return ApiResponse.onSuccess(res)
+    }
+
+    @Operation(
+        summary = "회원 탈퇴",
+        description = """
+        - 탈퇴 사유는 null 가능이며, 최대 255자까지 저장됩니다.
+        """
+    )
+    @DeleteMapping
+    fun withdraw(
+        @RequestHeader("Authorization") accessHeader: String,
+        @Valid @RequestBody req: MemberWithdrawRequest
+    ): ApiResponse<Void?> {
+        val memberId = jwtTokenProvider.extractMemberId(accessHeader)
+        memberService.withdraw(memberId, req)
+        return ApiResponse.onSuccess(null)
     }
 }

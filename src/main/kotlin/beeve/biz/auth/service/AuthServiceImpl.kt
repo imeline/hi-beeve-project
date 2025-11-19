@@ -2,14 +2,17 @@ package beeve.biz.auth.service
 
 import beeve.biz.auth.dto.request.RefreshTokenRequest
 import beeve.biz.auth.dto.request.SocialLoginRequest
-import beeve.biz.auth.dto.response.TokenResponse
+import beeve.biz.auth.dto.response.AccessTokenResponse
+import beeve.biz.auth.dto.response.LoginResponse
 import beeve.biz.auth.entity.RefreshToken
 import beeve.biz.auth.repository.RefreshTokenRepository
 import beeve.biz.auth.repository.SocialAuthRepository
 import beeve.biz.auth.security.JwtTokenProvider
 import beeve.biz.auth.security.UserPrincipal
+import beeve.biz.member.service.MemberService
 import beeve.common.exception.ErrorStatus
 import beeve.common.exception.GlobalException
+import io.jsonwebtoken.ExpiredJwtException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,18 +20,21 @@ import org.springframework.transaction.annotation.Transactional
 class AuthServiceImpl(
     private val jwtTokenProvider: JwtTokenProvider,
     private val socialAuthRepository: SocialAuthRepository,
-    private val refreshTokenRepository: RefreshTokenRepository
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val memberService: MemberService
 ) : AuthService {
 
     @Transactional
-    override fun socialLogin(req: SocialLoginRequest): TokenResponse {
-        // todo: 탈퇴 회원 검증 필요
+    override fun socialLogin(req: SocialLoginRequest): LoginResponse {
         // 소셜 인증 정보 조회
         val social = socialAuthRepository
             .findByProviderAndProviderUserId(req.provider, req.providerUserId)
             .orElseThrow { GlobalException(ErrorStatus.SOCIAL_AUTH_NOT_FOUND) }
 
-        val memberId = social.memberId
+        // social.memberId 에 해당하는 member 이 있고, 활성 상태인지 확인
+        val member = memberService.getActiveMemberById(social.memberId)
+
+        val memberId = member.memberId!!
         val principal = UserPrincipal.of(memberId)
 
         // 토큰 발급
@@ -44,22 +50,33 @@ class AuthServiceImpl(
                 { refreshTokenRepository.save(RefreshToken.createRefreshToken(memberId, refreshRaw)) }
             )
 
-        return TokenResponse(accessToken = access, refreshToken = refresh)
+        return LoginResponse(accessToken = access, refreshToken = refresh, name = member.name)
     }
 
     @Transactional(readOnly = true)
-    override fun refresh(req: RefreshTokenRequest): TokenResponse {
+    override fun refresh(req: RefreshTokenRequest): AccessTokenResponse {
         val reqRefresh = req.refreshToken
-        val memberId = jwtTokenProvider.extractMemberId(reqRefresh)
+        val memberId = try {
+            // 리프레시 토큰에서 memberId 추출
+            jwtTokenProvider.extractMemberId(reqRefresh)
+        } catch (e: ExpiredJwtException) { // 만료된 리프레시 토큰 예외 처리
+            // 만료된 토큰의 memberId로 DB 행 삭제
+            val expiredMemberId = e.claims.subject?.toLongOrNull()
+            if (expiredMemberId != null) {
+                refreshTokenRepository.deleteByMemberId(expiredMemberId)
+            }
+            throw GlobalException(ErrorStatus.EXPIRED_REFRESH_TOKEN)
+        } catch (e: Exception) { // 형식 이상 / 서명 오류 등 예외 처리
+            throw GlobalException(ErrorStatus.INVALID_REFRESH_TOKEN)
+        }
 
+        // 리프레쉬 토큰 행 조회 및 존재 검증
         val refreshRow = validRefreshTokenRowByMemberId(memberId)
+        // 리프레쉬 토큰 (DB 저장값 = 요청 값) 검증
         validRefreshTokenEquals(refreshRow, reqRefresh)
 
-        // 리프레스 토큰 만료 검증
-        validRefreshTokenNotExpired(reqRefresh)
-
         val newAccess = jwtTokenProvider.generateAccessToken(UserPrincipal.of(memberId))
-        return TokenResponse(accessToken = newAccess)
+        return AccessTokenResponse(accessToken = newAccess)
     }
 
     @Transactional
@@ -81,13 +98,5 @@ class AuthServiceImpl(
         if (dbRefreshRaw.isNullOrBlank() || dbRefreshRaw != reqRefreshRaw) {
             throw GlobalException(ErrorStatus.INVALID_REFRESH_TOKEN)
         }
-    }
-
-    /** 리프레쉬 토큰 만료 검증, 만료 시 DB에서 삭제 후 예외 */
-    private fun validRefreshTokenNotExpired(reqRefresh: String) {
-        if (jwtTokenProvider.validateToken(reqRefresh)) return
-        val memberId = jwtTokenProvider.extractMemberId(reqRefresh)
-        refreshTokenRepository.deleteByMemberId(memberId)
-        throw GlobalException(ErrorStatus.EXPIRED_REFRESH_TOKEN)
     }
 }

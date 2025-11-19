@@ -21,3 +21,14 @@ Content-Type: application/json
 ### ─────────────────────────────────
 GET {{base}}/profile
 Authorization: {{accessToken}}
+
+### ─────────────────────────────────
+### 3) 회원 탈퇴
+### ─────────────────────────────────
+DELETE {{base}}
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+{
+  "withdrawReason": "서비스가 마음에 들지 않아요."
+}
