@@ -4,7 +4,6 @@ import beeve.common.response.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.validation.BindException
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class GlobalExceptionHandler {
+open class GlobalExceptionHandler {
 
     companion object {
         private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
@@ -31,8 +30,10 @@ class GlobalExceptionHandler {
         val es = ex.status
         response.status = es.httpStatus.value()
 
-        log.warn("code: {}, uri: {}, msg: {}",
-            es.name, request.requestURI, ex.message ?: es.message)
+        log.warn(
+            "code: {}, uri: {}, msg: {}",
+            es.name, request.requestURI, ex.message ?: es.message
+        )
         return ApiResponse.onFailure(es, ex.message ?: es.message)
     }
 
@@ -100,6 +101,7 @@ class GlobalExceptionHandler {
 
         log.warn("uri: {}, fields: {}", request.requestURI, ex.message, ex)
         return ApiResponse.onFailure(
-            ErrorStatus.INTERNAL_SERVER_ERROR, ex.message ?: "서버 오류")
+            ErrorStatus.INTERNAL_SERVER_ERROR, ex.message ?: "서버 오류"
+        )
     }
 }

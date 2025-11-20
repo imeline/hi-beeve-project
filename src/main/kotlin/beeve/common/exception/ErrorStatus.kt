@@ -16,7 +16,7 @@ enum class ErrorStatus {
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH103", "리프레시 토큰이 존재하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH104", "리프레시 토큰이 일치하지 않습니다."),
     EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH105", "리프레시 토큰이 만료되었습니다."),
-    DUPLICATE_LOGIN_EMAIL("AUTH106", "기존 사용중인 이메일입니다."),
+    SOCIAL_AUTH_ALREADY_EXISTS(HttpStatus.UNAUTHORIZED, "AUTH106", "이미 가입된 소셜 계정입니다."),
 
     // MEMBER
     MEMBER_NOT_FOUND("MEMBER201", "회원이 존재하지 않습니다."),

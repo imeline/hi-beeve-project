@@ -1,6 +1,7 @@
 package beeve.biz.auth.controller
 
 import beeve.biz.auth.dto.request.RefreshTokenRequest
+import beeve.biz.auth.dto.request.SignupRequest
 import beeve.biz.auth.dto.request.SocialLoginRequest
 import beeve.biz.auth.dto.response.AccessTokenResponse
 import beeve.biz.auth.dto.response.LoginResponse
@@ -21,9 +22,21 @@ class AuthController(
 ) {
 
     @Operation(
+        summary = "소셜 회원가입",
+        description = "provider(KAKAO|GOOGLE)와 providerUserId로 회원가입을 진행합니다.",
+        security = []
+    )
+    @PostMapping("/signup")
+    fun signup(@Valid @RequestBody req: SignupRequest): ApiResponse<Void?> {
+        authService.signup(req)
+        return ApiResponse.onSuccess(null)
+    }
+
+    @Operation(
         summary = "소셜 로그인",
         description = "provider(KAKAO|GOOGLE)와 providerUserId로 로그인합니다. " +
-                "성공 시 accessToken/refreshToken을 바디로 반환합니다.", security = []
+                "성공 시 accessToken/refreshToken을 바디로 반환합니다.",
+        security = []
     )
     @PostMapping("/login")
     fun login(@Valid @RequestBody req: SocialLoginRequest): ApiResponse<LoginResponse> {
@@ -33,7 +46,8 @@ class AuthController(
 
     @Operation(
         summary = "accessToken 재발급",
-        description = "바디의 refreshToken을 검증하여 새 accessToken을 발급합니다.", security = []
+        description = "바디의 refreshToken을 검증하여 새 accessToken을 발급합니다.",
+        security = []
     )
     @PostMapping("/refresh")
     fun refresh(@Valid @RequestBody req: RefreshTokenRequest): ApiResponse<AccessTokenResponse> {

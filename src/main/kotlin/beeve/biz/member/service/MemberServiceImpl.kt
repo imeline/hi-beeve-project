@@ -1,5 +1,6 @@
 package beeve.biz.member.service
 
+import beeve.biz.auth.dto.request.SignupRequest
 import beeve.biz.auth.repository.RefreshTokenRepository
 import beeve.biz.auth.repository.SocialAuthRepository
 import beeve.biz.member.dto.request.MemberProfileRequest
@@ -18,6 +19,12 @@ class MemberServiceImpl(
     private val refreshTokenRepository: RefreshTokenRepository,
     private val socialAuthRepository: SocialAuthRepository
 ) : MemberService {
+
+    @Transactional
+    override fun createMember(req: SignupRequest): Member {
+        val member = Member.create(req)
+        return memberRepository.save(member)
+    }
 
     @Transactional(readOnly = true)
     override fun getActiveMemberById(memberId: Long): Member {

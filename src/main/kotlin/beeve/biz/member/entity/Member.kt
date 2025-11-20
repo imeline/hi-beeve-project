@@ -1,5 +1,6 @@
 package beeve.biz.member.entity
 
+import beeve.biz.auth.dto.request.SignupRequest
 import beeve.biz.member.dto.request.MemberProfileRequest
 import beeve.biz.member.enum.Gender
 import beeve.common.base.SoftDeletableTimeStamped
@@ -21,19 +22,19 @@ class Member(
     var email: String? = null,
 
     @Column(length = 50)
-    var name: String? = null,
+    var name: String,
 
-    var birthDate: LocalDate? = null,
+    var birthDate: LocalDate,
 
     @Enumerated(EnumType.STRING)
     @Column(length = 1)
-    var gender: Gender? = null,
+    var gender: Gender,
 
     @Column(precision = 5, scale = 2)
-    var height: BigDecimal? = null,
+    var height: BigDecimal,
 
     @Column(precision = 5, scale = 2)
-    var weight: BigDecimal? = null,
+    var weight: BigDecimal,
 
     @Column(length = 255)
     var profileUrl: String? = null,
@@ -48,9 +49,20 @@ class Member(
 
 ) : SoftDeletableTimeStamped() {
 
-    @get:Transient
-    val isPresentProfile: Boolean
-        get() = birthDate != null && gender != null && height != null && weight != null
+    companion object {
+        fun create(req: SignupRequest): Member =
+            Member(
+                email = req.email,
+                name = req.name,
+                birthDate = req.birthDate,
+                gender = req.gender,
+                height = req.height,
+                weight = req.weight,
+                profileUrl = req.profileUrl,
+                totalGrade = null,
+                withdrawReason = null
+            )
+    }
 
     // 프로필 생성, 수정
     // req의 각 필드가 null이 아니면 해당 필드를 덮어씀
