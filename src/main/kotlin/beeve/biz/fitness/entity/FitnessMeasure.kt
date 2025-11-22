@@ -3,12 +3,12 @@ package beeve.biz.fitness.entity
 import beeve.biz.fitness.enum.FitnessType
 import beeve.biz.fitness.enum.MeasurePlace
 import beeve.biz.member.enum.Gender
+import org.bson.types.Decimal128
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.mongodb.core.mapping.Document
-import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 
@@ -31,11 +31,11 @@ data class FitnessMeasure(
 
     val gender: Gender,                 // 성별 (M, F)
 
-    val height: BigDecimal,             // 신장
+    val height: Decimal128,             // 신장
 
-    val weight: BigDecimal,             // 체중
+    val weight: Decimal128,             // 체중
 
-    val bmi: BigDecimal,                // 체질량률
+    val bmi: Decimal128,                // 체질량률
 
     // { "STRENGTH": { grade, value, program, rawValue }, ... }
     val fitnessResult: Map<FitnessType, FitnessResult>, // 체력 측정 결과

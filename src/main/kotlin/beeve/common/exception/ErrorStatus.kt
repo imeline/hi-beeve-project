@@ -21,13 +21,15 @@ enum class ErrorStatus {
     // MEMBER
     MEMBER_NOT_FOUND("MEMBER201", "회원이 존재하지 않습니다."),
     MEMBER_PROFILE_NOT_FOUND("MEMBER202", "회원 프로필 정보가 존재하지 않습니다."),
+    HEIGHT_WEIGHT_INVALID("MEMBER203", "회원 키 또는 몸무게 값이 올바르지 않습니다."),
 
     // FITNESS
     FITNESS_TODAY_ALREADY_EXISTS("FITNESS301", "체력 측정은 하루에 1번만 가능합니다."),
     FITNESS_NOT_FOUND("FITNESS302", "체력 측정 기록이 존재하지 않습니다."),
 
     // RECOMMEND
-    FAILED_TO_RECOMMEND_PROGRAM("RECOMMEND401", "추천 운동 생성에 실패하였습니다.");
+    FAILED_TO_RECOMMEND_PROGRAM("RECOMMEND401", "추천 운동 생성에 실패하였습니다."),
+
     ;
 
     val httpStatus: HttpStatus
