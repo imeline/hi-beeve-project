@@ -71,7 +71,7 @@ class AuthServiceImpl(
                 { refreshTokenRepository.save(RefreshToken.createRefreshToken(memberId, refreshRaw)) }
             )
 
-        return LoginResponse(accessToken = access, refreshToken = refresh, name = member.name)
+        return LoginResponse.from(access, refresh, member)
     }
 
     @Transactional(readOnly = true)
