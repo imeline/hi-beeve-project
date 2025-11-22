@@ -1,6 +1,7 @@
 package beeve.biz.fitness.service
 
 import beeve.biz.fitness.dto.request.FitnessMeasureRequest
+import beeve.biz.fitness.dto.response.FitnessMeasureDatesResponse
 import beeve.biz.fitness.entity.AgeRange
 import beeve.biz.fitness.entity.FitnessMeasure
 import beeve.biz.fitness.entity.FitnessResult
@@ -81,6 +82,25 @@ class FitnessMeasureServiceImpl(
         fitnessMeasureRepository.save(fitnessMeasure)
     }
 
+    @Transactional(readOnly = true)
+    override fun getFitnessMeasureDays(memberId: Long): FitnessMeasureDatesResponse {
+        // member 존재 여부 체크
+        memberService.getActiveMemberById(memberId)
+
+        val measures = fitnessMeasureRepository
+            .findByMemberIdAndDeletedYnOrderByMeasureDayDesc(memberId, "N")
+        if (measures.isEmpty()) {
+            throw GlobalException(ErrorStatus.FITNESS_NOT_FOUND)
+        }
+        val days = measures.map { it.measureDay }
+
+        return FitnessMeasureDatesResponse.from(days)
+    }
+
+
+    // ============================================================
+    // private methods
+    // ============================================================
     /**
      * FitnessResult map 생성
      */
@@ -398,7 +418,6 @@ class FitnessMeasureServiceImpl(
         // 나머지
         return 5
     }
-
 
     /**
      * Map에서 해당 FitnessType의 grade 값이 존재하는지 검증

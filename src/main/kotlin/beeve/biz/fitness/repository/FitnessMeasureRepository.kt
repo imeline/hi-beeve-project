@@ -13,4 +13,9 @@ interface FitnessMeasureRepository : MongoRepository<FitnessMeasure, ObjectId> {
         measureDay: LocalDate,
         deletedYn: String = "N",
     ): Boolean
+
+    fun findByMemberIdAndDeletedYnOrderByMeasureDayDesc(
+        memberId: Long,
+        deletedYn: String = "N",
+    ): List<FitnessMeasure>
 }
