@@ -9,13 +9,12 @@ Content-Type: application/json
 
 {
   "measurePlace": "GYM",
-  "strengthLevel": 2,
-  "pushUpReps": 20,
-  "curlUpReps": 25,
+  "wallPushUpReps": 20,
   "stepTestRecoveryBpm": 96,
-  "sitAndReach": 20,
-  "standingLongJump": 105,
-  "sideStepReps": 30
+  "crossCrunchReps": 25,
+  "sitAndReach": 20.0,
+  "reactionTime": 0.45,
+  "flightTime": 0.55
 }
 
 ### ─────────────────────────────────

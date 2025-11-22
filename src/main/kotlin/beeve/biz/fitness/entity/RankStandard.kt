@@ -15,7 +15,8 @@ class RankStandard(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val rankStandardId: Long? = null,
 
-    @Column(name = "gender", nullable = false, length = 1)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 1)
     val gender: Gender,   // 'M', 'F'
 
     @Column(nullable = false)
@@ -26,6 +27,9 @@ class RankStandard(
 
     @Column(nullable = false)
     val grade: Int,       // 1~3 (4는 3 이하의 수치)
+
+    @Column(nullable = false)
+    val pushUpReps: Int,
 
     @Column(nullable = false)
     val stepTestVo2max: BigDecimal,   // 심폐지구력

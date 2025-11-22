@@ -2,13 +2,16 @@ package beeve.biz.fitness.entity
 
 import beeve.biz.fitness.enum.FitnessType
 import beeve.biz.fitness.enum.MeasurePlace
+import beeve.biz.member.entity.Member
 import beeve.biz.member.enum.Gender
-import org.bson.types.Decimal128
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
+import org.springframework.data.mongodb.core.mapping.FieldType
+import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 
@@ -31,13 +34,17 @@ data class FitnessMeasure(
 
     val gender: Gender,                 // 성별 (M, F)
 
-    val height: Decimal128,             // 신장
+    @Field(targetType = FieldType.DECIMAL128)
+    val height: BigDecimal,             // 신장
 
-    val weight: Decimal128,             // 체중
+    @Field(targetType = FieldType.DECIMAL128)
+    val weight: BigDecimal,             // 체중
 
-    val bmi: Decimal128,                // 체질량률
+    @Field(targetType = FieldType.DECIMAL128)
+    val bmi: BigDecimal,                // 체질량률
 
     // { "STRENGTH": { grade, value, program, rawValue }, ... }
+    // rawValue 는 STRENGTH 타입 시 원측정 값, CARDIO 시 recoveryBpm, 그 외는 null
     val fitnessResult: Map<FitnessType, FitnessResult>, // 체력 측정 결과
 
     // null 기본 값이 있어야 자동으로 들어감
@@ -46,4 +53,32 @@ data class FitnessMeasure(
     @LastModifiedDate
     val updatedAt: Instant? = null,
     val deletedYn: String = "N",
-)
+) {
+
+    companion object {
+        fun from(
+            memberId: Long,
+            member: Member,
+            ageRange: AgeRange,
+            age: Int,
+            totalGrade: Int,
+            measurePlace: MeasurePlace?,
+            measureDay: LocalDate,
+            fitnessResult: Map<FitnessType, FitnessResult>,
+        ): FitnessMeasure {
+            return FitnessMeasure(
+                memberId = memberId,
+                ageRange = ageRange,
+                age = age,
+                totalGrade = totalGrade,
+                measurePlace = measurePlace,
+                measureDay = measureDay,
+                gender = member.gender,
+                height = member.height,
+                weight = member.weight,
+                bmi = member.bmi,
+                fitnessResult = fitnessResult,
+            )
+        }
+    }
+}
