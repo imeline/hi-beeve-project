@@ -36,6 +36,7 @@ enum class ErrorStatus {
     ),
     FITNESS_GRADE_MISSING("FITNESS305", "필수 체력 등급 정보가 누락되었습니다."),
     FITNESS_TYPE_INVALID("FITNESS306", "유효하지 않은 체력 측정 유형입니다."),
+    FITNESS_COMPARISON_DATA_INVALID("FITNESS307", "체력 측정 비교 대상 데이터가 올바르지 않습니다."),
 
     // RECOMMEND
     FAILED_TO_RECOMMEND_PROGRAM("RECOMMEND401", "추천 운동 생성에 실패하였습니다."),

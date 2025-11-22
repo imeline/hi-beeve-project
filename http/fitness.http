@@ -8,13 +8,13 @@ Authorization: {{accessToken}}
 Content-Type: application/json
 
 {
-  "measurePlace": "GYM",
-  "wallPushUpReps": 20,
-  "stepTestRecoveryBpm": 96,
-  "crossCrunchReps": 25,
-  "sitAndReach": 20.0,
-  "reactionTime": 0.45,
-  "flightTime": 0.55
+  "measurePlace": null,
+  "kneePushUpReps": 34,
+  "stepTestRecoveryBpm": 89,
+  "crossCrunchReps": 13,
+  "sitAndReach": 10.0,
+  "reactionTime": 0.35,
+  "flightTime": 0.45
 }
 
 ### ─────────────────────────────────
@@ -24,7 +24,13 @@ GET {{base}}/measure-days
 Authorization: {{accessToken}}
 
 ### ─────────────────────────────────
-### 3) 체력 측정 조회 - 날짜별
+### 3.1) 체력 측정 조회 - 가장 최근 측정일 (파라미터 없음)
 ### ─────────────────────────────────
-GET {{base}}?measureDay=2025-11-02
+GET {{base}}
+Authorization: {{accessToken}}
+
+### ─────────────────────────────────
+### 3.2) 체력 측정 조회 - 특정 날짜 기준 조회
+### ─────────────────────────────────
+GET {{base}}?measureDay=2025-11-21
 Authorization: {{accessToken}}

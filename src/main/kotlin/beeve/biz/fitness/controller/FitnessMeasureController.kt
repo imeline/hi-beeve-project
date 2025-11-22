@@ -3,12 +3,14 @@ package beeve.biz.fitness.controller
 import beeve.biz.auth.security.JwtTokenProvider
 import beeve.biz.fitness.dto.request.FitnessMeasureRequest
 import beeve.biz.fitness.dto.response.FitnessMeasureDatesResponse
+import beeve.biz.fitness.dto.response.FitnessMeasureResponse
 import beeve.biz.fitness.service.FitnessMeasureService
 import beeve.common.response.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDate
 
 @Tag(name = "Fitness", description = "체력 측정 API")
 @RestController
@@ -48,6 +50,23 @@ class FitnessMeasureController(
     ): ApiResponse<FitnessMeasureDatesResponse> {
         val memberId = jwtTokenProvider.extractMemberId(accessHeader)
         val res = fitnessMeasureService.getFitnessMeasureDays(memberId)
+        return ApiResponse.onSuccess(res)
+    }
+
+    @Operation(
+        summary = "날짜별 체력 측정 결과 조회",
+        description = """
+        특정 날짜의 체력 측정 결과를 조회합니다.
+        날짜를 넘기지 않으면 사용자가 가장 최근에 측정한 날짜 데이터를 반환합니다.
+        """,
+    )
+    @GetMapping
+    fun getFitnessMeasure(
+        @RequestHeader("Authorization") accessHeader: String,
+        @RequestParam(required = false) measureDay: LocalDate?,
+    ): ApiResponse<FitnessMeasureResponse> {
+        val memberId = jwtTokenProvider.extractMemberId(accessHeader)
+        val res = fitnessMeasureService.getFitnessMeasure(memberId, measureDay)
         return ApiResponse.onSuccess(res)
     }
 }
