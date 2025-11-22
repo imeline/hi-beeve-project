@@ -32,5 +32,5 @@ Authorization: {{accessToken}}
 ### ─────────────────────────────────
 ### 3.2) 체력 측정 조회 - 특정 날짜 기준 조회
 ### ─────────────────────────────────
-GET {{base}}?measureDay=2025-11-21
+GET {{base}}?measureDay=2025-11-22
 Authorization: {{accessToken}}
