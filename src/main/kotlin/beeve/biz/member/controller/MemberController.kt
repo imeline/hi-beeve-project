@@ -3,6 +3,7 @@ package beeve.biz.member.controller
 import beeve.biz.auth.security.JwtTokenProvider
 import beeve.biz.member.dto.request.MemberProfileRequest
 import beeve.biz.member.dto.request.MemberWithdrawRequest
+import beeve.biz.member.dto.response.MemberHeaderProfileResponse
 import beeve.biz.member.dto.response.MemberProfileResponse
 import beeve.biz.member.service.MemberService
 import beeve.common.response.ApiResponse
@@ -30,10 +31,10 @@ class MemberController(
     fun createOrUpdateProfile(
         @RequestHeader("Authorization") accessHeader: String,
         @Valid @RequestBody req: MemberProfileRequest
-    ): ApiResponse<Void?> {
+    ): ApiResponse<MemberHeaderProfileResponse> {
         val memberId = jwtTokenProvider.extractMemberId(accessHeader)
-        memberService.createAndUpdateProfile(memberId, req)
-        return ApiResponse.onSuccess(null)
+        val res = memberService.createAndUpdateProfile(memberId, req)
+        return ApiResponse.onSuccess(res)
     }
 
     @Operation(

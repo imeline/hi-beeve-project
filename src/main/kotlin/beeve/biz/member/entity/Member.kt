@@ -4,10 +4,11 @@ import beeve.biz.auth.dto.request.SignupRequest
 import beeve.biz.member.dto.request.MemberProfileRequest
 import beeve.biz.member.enum.Gender
 import beeve.common.base.SoftDeletableTimeStamped
+import beeve.common.exception.ErrorStatus
+import beeve.common.exception.GlobalException
 import jakarta.persistence.*
-import jakarta.validation.constraints.Max
-import jakarta.validation.constraints.Min
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 
 @Entity
@@ -36,13 +37,12 @@ class Member(
     @Column(precision = 5, scale = 2)
     var weight: BigDecimal,
 
+    // BMI = kg / (m^2)
+    @Column(precision = 5, scale = 2)
+    var bmi: BigDecimal,
+
     @Column(length = 255)
     var profileUrl: String? = null,
-
-    @field:Min(1)
-    @field:Max(5)
-    @Column(columnDefinition = "SMALLINT")
-    val totalGrade: Short? = null,
 
     @Column(length = 255)
     var withdrawReason: String? = null
@@ -50,22 +50,30 @@ class Member(
 ) : SoftDeletableTimeStamped() {
 
     companion object {
-        fun create(req: SignupRequest): Member =
-            Member(
+        fun create(req: SignupRequest): Member {
+            return Member(
                 email = req.email,
                 name = req.name,
                 birthDate = req.birthDate,
                 gender = req.gender,
                 height = req.height,
                 weight = req.weight,
+                bmi = calculateBmi(req.height, req.weight),
                 profileUrl = req.profileUrl,
-                totalGrade = null,
                 withdrawReason = null
             )
+        }
+
+        private fun calculateBmi(height: BigDecimal, weight: BigDecimal): BigDecimal {
+            if (height <= BigDecimal.ZERO || weight <= BigDecimal.ZERO) {
+                throw GlobalException(ErrorStatus.HEIGHT_WEIGHT_INVALID)
+            }
+            val heightMeter = height.divide(BigDecimal(100), 4, RoundingMode.HALF_UP)
+            val denominator = heightMeter * heightMeter
+            return weight.divide(denominator, 2, RoundingMode.HALF_UP)
+        }
     }
 
-    // 프로필 생성, 수정
-    // req의 각 필드가 null이 아니면 해당 필드를 덮어씀
     fun createAndUpdateProfile(req: MemberProfileRequest): Member = apply {
         req.name?.let { name = it }
         req.birthDate?.let { birthDate = it }
@@ -73,6 +81,7 @@ class Member(
         req.height?.let { height = it }
         req.weight?.let { weight = it }
         req.profileUrl?.let { profileUrl = it }
+        bmi = calculateBmi(height, weight)
     }
 
     fun withdraw(reason: String?): Member = apply {

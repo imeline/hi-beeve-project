@@ -5,6 +5,7 @@ import beeve.biz.auth.repository.RefreshTokenRepository
 import beeve.biz.auth.repository.SocialAuthRepository
 import beeve.biz.member.dto.request.MemberProfileRequest
 import beeve.biz.member.dto.request.MemberWithdrawRequest
+import beeve.biz.member.dto.response.MemberHeaderProfileResponse
 import beeve.biz.member.dto.response.MemberProfileResponse
 import beeve.biz.member.entity.Member
 import beeve.biz.member.repository.MemberRepository
@@ -33,10 +34,12 @@ class MemberServiceImpl(
     }
 
     @Transactional
-    override fun createAndUpdateProfile(memberId: Long, req: MemberProfileRequest) {
+    override fun createAndUpdateProfile(memberId: Long, req: MemberProfileRequest)
+            : MemberHeaderProfileResponse {
         val member = getActiveMemberById(memberId)
         member.createAndUpdateProfile(req)
-        memberRepository.save(member)
+        val savedMember = memberRepository.save(member)
+        return MemberHeaderProfileResponse.from(savedMember)
     }
 
     @Transactional(readOnly = true)

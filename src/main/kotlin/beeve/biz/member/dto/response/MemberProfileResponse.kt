@@ -30,6 +30,9 @@ data class MemberProfileResponse(
     @field:Schema(description = "몸무게(kg), 소수점 둘째 자리까지", nullable = true)
     val weight: BigDecimal? = null,
 
+    @field:Schema(description = "BMI(kg/m^2), 소수점 둘째 자리까지", nullable = true)
+    val bmi: BigDecimal? = null,
+
     @field:Schema(description = "프로필 이미지 URL", nullable = true)
     val profileUrl: String? = null,
 ) {
@@ -40,6 +43,7 @@ data class MemberProfileResponse(
             gender = member.gender,
             height = member.height,
             weight = member.weight,
+            bmi = member.bmi,
             profileUrl = member.profileUrl
         )
     }

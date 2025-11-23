@@ -11,7 +11,7 @@ Content-Type: application/json
   "name": "홍길동",
   "birthDate": "1998-03-12",
   "gender": "M",
-  "height": 178.5,
+  "height": 180.5,
   "weight": 70.2,
   "profileUrl": "https://cdn.example.com/profile/1234.png"
 }
