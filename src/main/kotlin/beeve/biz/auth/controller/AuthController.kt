@@ -23,13 +23,14 @@ class AuthController(
 
     @Operation(
         summary = "소셜 회원가입",
-        description = "provider(KAKAO|GOOGLE)와 providerUserId로 회원가입을 진행합니다.",
+        description = "provider(KAKAO|GOOGLE)와 providerUserId로 회원가입을 진행 후, " +
+                "성공 시 로그인 응답을 반환합니다.",
         security = []
     )
     @PostMapping("/signup")
-    fun signup(@Valid @RequestBody req: SignupRequest): ApiResponse<Void?> {
-        authService.signup(req)
-        return ApiResponse.onSuccess(null)
+    fun signup(@Valid @RequestBody req: SignupRequest): ApiResponse<LoginResponse> {
+        val res = authService.signup(req)
+        return ApiResponse.onSuccess(res)
     }
 
     @Operation(

@@ -11,6 +11,7 @@ import beeve.biz.auth.repository.RefreshTokenRepository
 import beeve.biz.auth.repository.SocialAuthRepository
 import beeve.biz.auth.security.JwtTokenProvider
 import beeve.biz.auth.security.UserPrincipal
+import beeve.biz.member.entity.Member
 import beeve.biz.member.service.MemberService
 import beeve.common.exception.ErrorStatus
 import beeve.common.exception.GlobalException
@@ -27,12 +28,13 @@ class AuthServiceImpl(
 ) : AuthService {
 
     @Transactional
-    override fun signup(req: SignupRequest) {
+    override fun signup(req: SignupRequest): LoginResponse {
         // 기존 가입 소셜 정보인지 확인
         // 탈퇴 회원 재가입 불가
         if (socialAuthRepository.existsByProviderAndProviderUserId(req.provider, req.providerUserId)) {
             throw GlobalException(ErrorStatus.SOCIAL_AUTH_ALREADY_EXISTS)
         }
+
         // Member 생성
         val savedMember = memberService.createMember(req)
 
@@ -43,6 +45,9 @@ class AuthServiceImpl(
             providerUserId = req.providerUserId
         )
         socialAuthRepository.save(social)
+
+        // 회원가입 후 바로 토큰 발급 + LoginResponse 리턴
+        return issueTokensAndBuildLoginResponse(savedMember)
     }
 
     @Transactional
@@ -55,23 +60,8 @@ class AuthServiceImpl(
         // social.memberId 에 해당하는 member 이 있고, 활성 상태인지 확인
         val member = memberService.getActiveMemberById(social.memberId)
 
-        val memberId = member.memberId!!
-        val principal = UserPrincipal.of(memberId)
-
-        // 토큰 발급
-        val access = jwtTokenProvider.generateAccessToken(principal)
-        val refresh = jwtTokenProvider.generateRefreshToken(principal)
-
-        // DB엔 Bearer 제거한 Raw 토큰 저장
-        val refreshRaw = jwtTokenProvider.stripBearer(refresh)
-        // 기존 토큰 있으면 업데이트, 없으면 새로 저장
-        refreshTokenRepository.findByMemberId(memberId)
-            .ifPresentOrElse(
-                { it.updateToken(refreshRaw) },
-                { refreshTokenRepository.save(RefreshToken.createRefreshToken(memberId, refreshRaw)) }
-            )
-
-        return LoginResponse.from(access, refresh, member)
+        // 토큰 발급 + LoginResponse 리턴
+        return issueTokensAndBuildLoginResponse(member)
     }
 
     @Transactional(readOnly = true)
@@ -105,6 +95,34 @@ class AuthServiceImpl(
         val refreshRow = validRefreshTokenRowByMemberId(memberId)
         validRefreshTokenEquals(refreshRow, req.refreshToken)
         refreshTokenRepository.deleteByMemberId(memberId)
+    }
+
+    /** 액세스/리프레시 토큰 발급 + 리프레시 토큰 upsert + LoginResponse 생성 */
+    private fun issueTokensAndBuildLoginResponse(member: Member): LoginResponse {
+        val memberId = member.memberId
+            ?: throw GlobalException(ErrorStatus.MEMBER_NOT_FOUND)
+
+        val principal = UserPrincipal.of(memberId)
+
+        // 토큰 발급
+        val access = jwtTokenProvider.generateAccessToken(principal)
+        val refresh = jwtTokenProvider.generateRefreshToken(principal)
+
+        // DB엔 Bearer 제거한 Raw 토큰 저장
+        val refreshRaw = jwtTokenProvider.stripBearer(refresh)
+
+        upsertRefreshToken(memberId, refreshRaw)
+
+        return LoginResponse.from(access, refresh, member)
+    }
+
+    /** 리프레시 기존 토큰 있으면 업데이트, 없으면 새로 저장 */
+    private fun upsertRefreshToken(memberId: Long, refreshRaw: String) {
+        refreshTokenRepository.findByMemberId(memberId)
+            .ifPresentOrElse(
+                { it.updateToken(refreshRaw) },
+                { refreshTokenRepository.save(RefreshToken.createRefreshToken(memberId, refreshRaw)) }
+            )
     }
 
     /** memberId로 RefreshToken 행 조회, 없으면 예외 */
