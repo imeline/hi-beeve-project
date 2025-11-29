@@ -2,11 +2,9 @@ package beeve.biz.fitness.dto.request
 
 import beeve.biz.fitness.enum.MeasurePlace
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.constraints.Max
-import jakarta.validation.constraints.Min
 import java.math.BigDecimal
 
-@Schema(description = "체력 측정 실제 데이터 DTO (매 요청마다 필수)")
+@Schema(description = "체력 측정 생성 요청")
 data class FitnessMeasureRequest(
 
     @field:Schema(
@@ -16,26 +14,48 @@ data class FitnessMeasureRequest(
     )
     val measurePlace: MeasurePlace? = null,
 
-    @field:Schema(description = "근력 운동 레벨 (1: 쉬움 ~ 3: 어려움)")
-    @field:Min(1)
-    @field:Max(3)
-    val strengthLevel: Int,
+    // === 근력(Strength) – 세 가지 중 하나만 전송 ===
+    @field:Schema(
+        description = "벽 팔굽혀펴기 횟수(회). " +
+                "근력 측정 시 wallPushUpReps, kneePushUpReps, standardPushUpReps 중 하나만 전송",
+        nullable = true
+    )
+    val wallPushUpReps: Int? = null,
 
-    @field:Schema(description = "팔굽혀펴기 횟수")
-    val pushUpReps: Int,
+    @field:Schema(
+        description = "무릎 팔굽혀펴기 횟수(회). " +
+                "근력 측정 시 wallPushUpReps, kneePushUpReps, standardPushUpReps 중 하나만 전송",
+        nullable = true
+    )
+    val kneePushUpReps: Int? = null,
 
-    @field:Schema(description = "윗몸말아올리기 횟수")
-    val curlUpReps: Int,
+    @field:Schema(
+        description = "표준 팔굽혀펴기 횟수(회). " +
+                "근력 측정 시 wallPushUpReps, kneePushUpReps, standardPushUpReps 중 하나만 전송",
+        nullable = true
+    )
+    val standardPushUpReps: Int? = null,
 
-    @field:Schema(description = "스텝검사 회복시 심박수(bpm)")
+    // === 심폐지구력(Cardio – 스텝검사) ===
+    @field:Schema(
+        description = "스텝검사 회복시 심박수(bpm). " +
+                "VO2max 계산에 사용되는 회복기 심박수"
+    )
     val stepTestRecoveryBpm: Int,
 
-    @field:Schema(description = "앉아윗몸앞으로굽히기 횟수")
-    val sitAndReach: Int,
+    // === 근지구력(Endurance) ===
+    @field:Schema(description = "교차윗몸일으키기 횟수(회)")
+    val crossCrunchReps: Int,
 
-    @field:Schema(description = "제자리 멀리뛰기(cm)")
-    val standingLongJump: BigDecimal,
+    // === 유연성(Flexibility) ===
+    @field:Schema(description = "앉아윗몸앞으로굽히기 거리(cm), 소수점 입력 가능")
+    val sitAndReach: BigDecimal,
 
-    @field:Schema(description = "반복옆뛰기 횟수")
-    val sideStepReps: Int,
+    // === 민첩성(Agility) ===
+    @field:Schema(description = "반응시간(초), 소수점 입력 가능")
+    val reactionTime: BigDecimal,
+
+    // === 순발력(Quickness) ===
+    @field:Schema(description = "체공시간(초), 소수점 입력 가능")
+    val flightTime: BigDecimal,
 )

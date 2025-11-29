@@ -1,36 +1,34 @@
-@base = {{host}}/fitness
+@base = {{host}}/member
 
 ### ─────────────────────────────────
-### 1) 체력 측정 등록
+### 1) 회원 프로필 등록 또는 수정
 ### ─────────────────────────────────
-POST {{base}}
+POST {{base}}/profile
 Authorization: {{accessToken}}
 Content-Type: application/json
 
 {
-  "measurePlace": null,
-  "kneePushUpReps": 34,
-  "stepTestRecoveryBpm": 89,
-  "crossCrunchReps": 13,
-  "sitAndReach": 10.0,
-  "reactionTime": 0.35,
-  "flightTime": 0.45
+  "name": "홍길동",
+  "birthDate": "1998-03-12",
+  "gender": "M",
+  "height": 180.5,
+  "weight": 70.2,
+  "profileUrl": "https://cdn.example.com/profile/1234.png"
 }
 
 ### ─────────────────────────────────
-### 2) 체력 측정 가능 날짜 목록 조회
+### 2) 회원 프로필 조회
 ### ─────────────────────────────────
-GET {{base}}/measure-days
+GET {{base}}/profile
 Authorization: {{accessToken}}
 
 ### ─────────────────────────────────
-### 3.1) 체력 측정 조회 - 가장 최근 측정일 (파라미터 없음)
+### 3) 회원 탈퇴
 ### ─────────────────────────────────
-GET {{base}}
+DELETE {{base}}
 Authorization: {{accessToken}}
+Content-Type: application/json
 
-### ─────────────────────────────────
-### 3.2) 체력 측정 조회 - 특정 날짜 기준 조회
-### ─────────────────────────────────
-GET {{base}}?measureDay=2025-11-22
-Authorization: {{accessToken}}
+{
+  "withdrawReason": "서비스가 마음에 들지 않아요."
+}
