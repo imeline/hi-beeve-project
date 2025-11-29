@@ -8,7 +8,7 @@ import beeve.biz.auth.dto.response.LoginResponse
 
 
 interface AuthService {
-    fun signup(req: SignupRequest)
+    fun signup(req: SignupRequest): LoginResponse
     fun socialLogin(req: SocialLoginRequest): LoginResponse
     fun refresh(req: RefreshTokenRequest): AccessTokenResponse
     fun logout(memberId: Long, req: RefreshTokenRequest)
