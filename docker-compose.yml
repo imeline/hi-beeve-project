@@ -2,7 +2,7 @@
 
 services:
   app:
-    image: sunakang1/beeve-server:latest
+    image: sunakang1/beeve-server-app:prod
     container_name: beeve-server
     depends_on:
       - postgres
