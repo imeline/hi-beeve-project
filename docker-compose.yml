@@ -9,11 +9,9 @@ services:
       - mongodb
     env_file:
       - .env
-    expose:
-      - "8080"
-    ports:
-      - "8080:8080"
     restart: unless-stopped
+    ports:
+      - "80:8080"
     deploy:
       resources:
         limits:
@@ -26,8 +24,6 @@ services:
       POSTGRES_DB: beeve
       POSTGRES_USER: ${POSTGRESQL_USERNAME}
       POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
-    ports:
-      - "5432:5432"   # 로컬에서 직접 접속 안 할 거면 이 줄은 빼도 됨
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -41,8 +37,6 @@ services:
     container_name: beeve-mongo
     environment:
       MONGO_INITDB_DATABASE: beeve
-    ports:
-      - "27017:27017" # 이것도 필요 없으면 빼도 됨
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
