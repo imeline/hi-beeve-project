@@ -1,0 +1,56 @@
+#version: "3.9"
+
+services:
+  app:
+    image: beeve/beeve_server:1
+    container_name: beeve-server
+    depends_on:
+      - postgres
+      - mongodb
+    env_file:
+      - .env
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+
+  postgres:
+    image: postgres:16
+    container_name: beeve-postgres
+    environment:
+      POSTGRES_DB: beeve
+      POSTGRES_USER: ${POSTGRESQL_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+    ports:
+      - "5432:5432"   # 로컬에서 직접 접속 안 할 거면 이 줄은 빼도 됨
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+
+  mongodb:
+    image: mongo:7
+    container_name: beeve-mongo
+    environment:
+      MONGO_INITDB_DATABASE: beeve
+    ports:
+      - "27017:27017" # 이것도 필요 없으면 빼도 됨
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+
+volumes:
+  postgres_data:
+  mongo_data:
