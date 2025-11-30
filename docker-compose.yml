@@ -2,7 +2,7 @@
 
 services:
   app:
-    image: beeve/beeve_server:1
+    image: sunakang1/beeve-server:latest
     container_name: beeve-server
     depends_on:
       - postgres
@@ -11,7 +11,7 @@ services:
       - .env
     restart: unless-stopped
     ports:
-      - "80:8080"
+      - "8080:8080"
     deploy:
       resources:
         limits:
