@@ -1,11 +1,30 @@
 package beeve.biz.recommend.dto.response
 
-class DayPlanResponse {
-    var day: String? = null
+import com.fasterxml.jackson.annotation.JsonProperty
 
-    var focus: String? = null
+data class DayPlanResponse(
 
-    var warmUp: String? = null
+    var day: String? = null,
 
-    var exerciseList: MutableList<ProgramPlanResponse?>? = null
-}
+    var focus: String? = null,
+
+    @JsonProperty("warm_up")
+    var warmUp: String? = null,
+
+    @JsonProperty("cool_down")
+    var coolDown: String? = null,
+
+    @JsonProperty("exercises")
+    var exerciseList: List<ProgramPlanResponse> = emptyList(),
+)
+
+data class ProgramPlanResponse(
+    var name: String? = null,
+    var sets: String? = null,
+    var reps: String? = null,
+    @JsonProperty("rest_seconds")
+    var restSeconds: String? = null,
+    var rpe: String? = null,
+)
+
+

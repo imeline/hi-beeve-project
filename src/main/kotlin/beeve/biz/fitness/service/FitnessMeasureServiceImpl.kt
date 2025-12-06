@@ -431,7 +431,7 @@ class FitnessMeasureServiceImpl(
      * 건강체력: STRENGTH, CARDIO, ENDURANCE, FLEXIBILITY
      * 운동체력: AGILITY, QUICKNESS
      */
-    private fun calculateTotalGrade(results: Map<FitnessType, FitnessResult>): Int {
+    override fun calculateTotalGrade(results: Map<FitnessType, FitnessResult>): Int {
         val strength = results.requireGrade(FitnessType.STRENGTH)
         val cardio = results.requireGrade(FitnessType.CARDIO)
         val endurance = results.requireGrade(FitnessType.ENDURANCE)
@@ -469,7 +469,7 @@ class FitnessMeasureServiceImpl(
     // ----------------------------------------------------
     // totalRank 계산 로직
     // ----------------------------------------------------
-    private fun calculateTotalRank(
+    override fun calculateTotalRank(
         myMeasure: FitnessMeasure,
         compMeasures: List<FitnessMeasure>,
     ): Int {

@@ -1,11 +1,17 @@
 package beeve.biz.fitness.enum
 
 enum class FitnessType {
+    // 근력
     STRENGTH,
+    // 심폐지구력 (건강체력)
     CARDIO,
+    // 근지구력 (건강체력)
     ENDURANCE,
+    // 유연성 (건강체력)
     FLEXIBILITY,
+    // 민첩성 (운동체력)
     AGILITY,
+    // 순발력 (운동체력)
     QUICKNESS;
 
 //    // 의존 방향을 service -> enum -> entity 로 하고
