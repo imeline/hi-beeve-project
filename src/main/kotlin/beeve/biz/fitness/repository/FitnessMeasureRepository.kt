@@ -41,4 +41,11 @@ interface FitnessMeasureRepository : MongoRepository<FitnessMeasure, ObjectId> {
         ageRange: AgeRange,
         deletedYn: String = "N",
     ): List<FitnessMeasure>
+
+    // 체력 측정 이력 최신등록순 5개 조회
+    fun findTop5ByMemberIdOrderByMeasureDayDesc(
+        memberId: Long,
+        deletedYn: String = "N",
+    ): List<FitnessMeasure>
+
 }
