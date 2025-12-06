@@ -42,7 +42,7 @@ class FeignConfig(
     @Bean
     fun requestInterceptor(): RequestInterceptor =
         RequestInterceptor { t ->
-            t.header("x-goog-api-key", "apiKey")
+            t.header("x-goog-api-key", apiKey)
             t.header("Content-Type", "application/json")
         }
 

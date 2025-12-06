@@ -3,8 +3,6 @@ package beeve.biz.rank.service
 import beeve.biz.fitness.entity.FitnessMeasure
 import beeve.biz.fitness.enum.FitnessType
 import beeve.biz.fitness.repository.FitnessMeasureRepository
-import beeve.biz.fitness.service.FitnessMeasureService
-import beeve.biz.rank.dto.response.FitnessGradeHistoryResponse
 import beeve.biz.rank.dto.response.FitnessGradeSelectResponse
 import beeve.biz.rank.dto.response.FitnessRankHistoryResponse
 import beeve.biz.rank.dto.response.FitnessRankItemResponse
@@ -12,7 +10,6 @@ import beeve.biz.rank.dto.response.FitnessRankSelectResponse
 import beeve.common.exception.ErrorStatus
 import beeve.common.exception.GlobalException
 import jakarta.transaction.Transactional
-import org.springframework.stereotype.Repository
 import org.springframework.stereotype.Service
 
 @Service
@@ -31,9 +28,14 @@ class RankServiceImpl (
     @Transactional
     override fun getRankHistories(memberId: Long): FitnessRankSelectResponse {
 
-        val list = fitnessMeasureRepository.findTop5ByMemberIdOrderByMeasureDayDesc(memberId, deletedYn = "N")
+        val myMeasuredList = fitnessMeasureRepository.findTop5ByMemberIdOrderByMeasureDayDesc(memberId, deletedYn = "N")
 
-        val myLatestMeasure = list[0]
+        if (myMeasuredList.isEmpty()) {
+            return FitnessRankSelectResponse.from(emptyList(), emptyList())
+        }
+
+        val myLatestMeasure = myMeasuredList[0];
+
         // 2) 같은 성별 + 같은 연령대의 모든 기록 조회 (날짜 제한 없음)
         val allMeasures = fitnessMeasureRepository
             .findByGenderAndAgeRangeAndDeletedYn(
@@ -60,7 +62,7 @@ class RankServiceImpl (
         val fitnessRankList = calculateFitnessRank(myLatestMeasure, compMeasures)
 
         // 개인별 순위 이력
-        val rankHistoryList = list.map { fitnessRankItem ->
+        val rankHistoryList = myMeasuredList.map { fitnessRankItem ->
             val rank = calculateTotalRank(fitnessRankItem, compMeasures)
             FitnessRankHistoryResponse(
                 rank,
