@@ -40,6 +40,7 @@ enum class ErrorStatus {
 
     // RECOMMEND
     FAILED_TO_RECOMMEND_PROGRAM("RECOMMEND401", "추천 운동 생성에 실패하였습니다."),
+    JSON_PARSING_ERROR("RECOMMEND402", "응답값 파싱 에러"),
 
     ;
 

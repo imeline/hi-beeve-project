@@ -35,6 +35,7 @@ class WeekPlanRequest (
                 append("-warm_up, cool_down은 1줄 문구")
                 append("-notes는 20자 이내 요약-exercises는 3~4개만")
                 append("-불필요한 설명 금지")
+                append("-주 3회 추천")
             }
 
             val jsonTemplate = buildString {
