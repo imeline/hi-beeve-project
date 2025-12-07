@@ -45,17 +45,21 @@ class RankServiceImpl (
             )
 
         // 3) 회원별로 "가장 최근 측정" 1개씩만 남기기
-        val latestPerMember: List<FitnessMeasure> = allMeasures
-            .filter { it.memberId != null }              // 혹시 모를 null 방어
-            .groupBy { it.memberId!! }                   // memberId별로 묶고
-            .mapValues { (_, measures) ->
-                measures.maxByOrNull { it.measureDay }!! // measureDay 가장 큰 것 (최신)
-            }
-            .values
-            .toList()
+//        val latestPerMember: List<FitnessMeasure> = allMeasures
+//            .filter { it.memberId != null }              // 혹시 모를 null 방어
+//            .groupBy { it.memberId!! }                   // memberId별로 묶고
+//            .mapValues { (_, measures) ->
+//                measures.maxByOrNull { it.measureDay }!! // measureDay 가장 큰 것 (최신)
+//            }
+//            .values
+//            .toList()
+//
+//        // 4) 비교군에서 "나"는 제외
+//        val compMeasures = latestPerMember
+//            .filter { it.memberId != myLatestMeasure.memberId }
 
-        // 4) 비교군에서 "나"는 제외
-        val compMeasures = latestPerMember
+        // 현재 빅데이터에 회원ID가 없어서 비교군 추출 불가해 임시 처리
+        val compMeasures = allMeasures
             .filter { it.memberId != myLatestMeasure.memberId }
 
         // 체력별 순위
