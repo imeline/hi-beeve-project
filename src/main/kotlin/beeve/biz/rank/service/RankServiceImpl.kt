@@ -10,12 +10,15 @@ import beeve.biz.rank.dto.response.FitnessRankSelectResponse
 import beeve.common.exception.ErrorStatus
 import beeve.common.exception.GlobalException
 import jakarta.transaction.Transactional
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 
 @Service
 class RankServiceImpl (
     private val fitnessMeasureRepository: FitnessMeasureRepository
 ) : RankService {
+    private val log = KotlinLogging.logger {}
+
 
     @Transactional
     override fun getGradeHistories(memberId: Long): FitnessGradeSelectResponse {
@@ -45,22 +48,24 @@ class RankServiceImpl (
             )
 
         // 3) 회원별로 "가장 최근 측정" 1개씩만 남기기
-//        val latestPerMember: List<FitnessMeasure> = allMeasures
-//            .filter { it.memberId != null }              // 혹시 모를 null 방어
-//            .groupBy { it.memberId!! }                   // memberId별로 묶고
-//            .mapValues { (_, measures) ->
-//                measures.maxByOrNull { it.measureDay }!! // measureDay 가장 큰 것 (최신)
-//            }
-//            .values
-//            .toList()
-//
-//        // 4) 비교군에서 "나"는 제외
-//        val compMeasures = latestPerMember
-//            .filter { it.memberId != myLatestMeasure.memberId }
+        // memberId 없으면 measureId로 1인 1그룹 취급
+        val latestPerMember: List<FitnessMeasure> = allMeasures
+            .groupBy { m ->
+                m.memberId?.let { "M:$it" } ?: "U:${m.id}"   // m.id = 측정 레코드 고유 ID
+            }
+            .mapValues { (_, measures) ->
+                measures.maxByOrNull { it.measureDay }!!
+            }
+            .values
+            .toList()
+
+        // 4) 비교군에서 "나"는 제외
+        val compMeasures = latestPerMember
+            .filter { it.memberId != myLatestMeasure.memberId }
 
         // 현재 빅데이터에 회원ID가 없어서 비교군 추출 불가해 임시 처리
-        val compMeasures = allMeasures
-            .filter { it.memberId != myLatestMeasure.memberId }
+//        val compMeasures = allMeasures
+//            .filter { it.memberId != myLatestMeasure.memberId }
 
         // 체력별 순위
         val fitnessRankList = calculateFitnessRank(myLatestMeasure, compMeasures)
@@ -85,18 +90,24 @@ class RankServiceImpl (
     ): List<FitnessRankItemResponse> {
 
         // 같은 조건의 다른 사람이 아무도 없으면 1등으로 처리
-//        if (compMeasures.isEmpty()) return
+//        if (compMeasures.isEmpty()) return 1
+        log.info("myMeasure: {}", myMeasure)
+//        log.info("compMeasures: {}", compMeasures)
 
         val types = FitnessType.entries.toTypedArray()
         val ranksPerType: List<FitnessRankItemResponse> = types.map { type ->
             val myValue = myMeasure.fitnessResult[type]?.value
                 ?: throw GlobalException(ErrorStatus.FITNESS_TYPE_INVALID)
+            log.info("type={}, keys={}", type, compMeasures.first().fitnessResult.keys)
 
             // 1) 비교 대상들의 value 리스트
             val values = compMeasures.mapNotNull { it.fitnessResult[type]?.value }
+            log.info("compMeasures: {}", compMeasures.get(0))
+            log.info("values: {}", values)
             if (values.isEmpty()) {
+                return@map FitnessRankItemResponse(type, 1)
                 // 비교 목록에 이 타입 값이 하나도 없다? 비정상
-                throw GlobalException(ErrorStatus.FITNESS_COMPARISON_DATA_INVALID)
+//                throw GlobalException(ErrorStatus.FITNESS_COMPARISON_DATA_INVALID)
             }
 
             // (2) 각 FitnessType별 value 기준으로 정렬
@@ -138,19 +149,24 @@ class RankServiceImpl (
         compMeasures: List<FitnessMeasure>,
     ): Int {
         // 같은 조건의 다른 사람이 아무도 없으면 1등으로 처리
-        if (compMeasures.isEmpty()) return 1
+//        if (compMeasures.isEmpty()) return 1
 
         val types = FitnessType.entries.toTypedArray()
+        log.info("TotalRank={}", types)
 
         val ranksPerType: List<Int> = types.map { type ->
             val myValue = myMeasure.fitnessResult[type]?.value
                 ?: throw GlobalException(ErrorStatus.FITNESS_TYPE_INVALID)
 
             // 1) 비교 대상들의 value 리스트
+            log.info("===TotalRank===")
             val values = compMeasures.mapNotNull { it.fitnessResult[type]?.value }
+            log.info("type={}, keys={}", type, compMeasures.first().fitnessResult.keys)
+
             if (values.isEmpty()) {
+                return 1
                 // 비교 목록에 이 타입 값이 하나도 없다? 비정상
-                throw GlobalException(ErrorStatus.FITNESS_COMPARISON_DATA_INVALID)
+//                throw GlobalException(ErrorStatus.FITNESS_COMPARISON_DATA_INVALID)
             }
 
             // (2) 각 FitnessType별 value 기준으로 정렬
