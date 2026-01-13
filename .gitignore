@@ -53,3 +53,7 @@ out/
 
 .env
 *.sh
+
+# Bearer token 노출 방지
+http/http-client.env.json
+http/auth.http
